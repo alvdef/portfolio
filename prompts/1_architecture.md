@@ -6,24 +6,37 @@ Defining the technical architecture for the utilitarian portfolio system using A
 
 * **Framework:** Astro (Static Site Generation - SSG).
 * **UI Library:** React (used strictly for interactive Astro Islands, e.g., Spotify widget, Clock, Complex navigation state).
-* **Styling:** Tailwind CSS (preferred for utility-class minimal styling). No bloated component libraries (no Material UI, no Bootstrap).
-* **Tailwind Constraint (Non-negotiable):** Disable the entire `borderRadius`, `boxShadow`, and `ringWidth` scales in `tailwind.config.js`. Set them all to `none` or `0`. The LLM must not be allowed to use Tailwind's default rounded corners or shadows by accident.
-* **Tailwind Palette Lock (Non-negotiable):** In `tailwind.config.js`, override the color palette entirely. Whitelist ONLY these tokens: `black`, `white`, `gray-100`, `gray-200`, `gray-400`, `gray-700`, `gray-900`. ALL other default Tailwind colors (especially `blue-*`, `indigo-*`, `purple-*`, `red-*`) are FORBIDDEN. The UI must remain strictly monochromatic and cold.
-* **Tailwind Typography Plugin (Non-negotiable):** Do NOT install or use `@tailwindcss/typography`. Do NOT use the `prose` class anywhere. Markdown styling must be manual and scoped to the article container, using only permitted tokens and zero border radius.
+* **Styling:** Tailwind CSS v4 (preferred for utility-class minimal styling). No bloated component libraries (no Material UI, no Bootstrap).
+* **Tailwind Version Lock (Non-negotiable):** Use Tailwind CSS **v4** via the `@tailwindcss/vite` Vite plugin. Do NOT use the legacy `@astrojs/tailwind` integration or `tailwind.config.js`. Configuration is CSS-based, via `@theme` in the global stylesheet.
+* **Tailwind Constraint (Non-negotiable):** In `src/styles/global.css`, use `@theme` to override design tokens and eliminate decorative defaults:
+  ```css
+  @import "tailwindcss";
+  @theme {
+    --radius-*: 0px;
+    --shadow-*: none;
+    --drop-shadow-*: none;
+    --ring-width: 0px;
+  }
+  ```
+* **Tailwind Palette Lock (Non-negotiable):** In the same `@theme` block, override the color palette entirely. Whitelist ONLY: `--color-black`, `--color-white`, `--color-gray-100`, `--color-gray-200`, `--color-gray-400`, `--color-gray-700`, `--color-gray-900`. Set `--color-*: initial` first to clear all default colors, then define only the permitted tokens. The UI must remain strictly monochromatic.
+* **Tailwind Plugin Whitelist (Non-negotiable):** The ONLY Tailwind dependency permitted is `tailwindcss` itself and `@tailwindcss/vite`. Do NOT install any other Tailwind plugin. Markdown styling must be manual and scoped to the article container, using only permitted tokens and zero border radius.
 * **Focus State Rule:** All interactive elements MUST define custom `:focus-visible` styles using `outline: 2px solid currentColor` and monochrome colors only. Never rely on the browser's default blue outline.
 
 ## 2. RENDERING STRATEGY
 
 * **SSG Strictly:** The site is pre-rendered at build time.
 * **Deployment Flow (Mandatory: Vercel or Netlify ONLY):** A push to the private GitHub repository triggers a build process on Vercel or Netlify. GitHub Pages is NOT a valid target for this system because Spotify requires a serverless runtime.
-* **Zero-JS by Default:** Send zero client-side JavaScript unless an interactive React component explicitly requires it (using `client:load` or `client:idle`).
+* **Minimal Client-Side JS:** Prefer Astro's native static output. Ship client-side JavaScript only when a feature genuinely requires it. Permitted JS entry points are: React Islands for the Spotify widget, Clock, and Scroll Resistance mechanic; a single inline `<script>` in the base layout for global Vim keyboard navigation (see `4_interaction.md`). Everything else is static HTML/CSS.
 * **View Transitions:** You MUST use Astro transitions with `<ClientRouter />` from `astro:transitions` in the document `<head>`. This is required to maintain the state of the Header Carousel and execute the "Discarded Paper" transitions without full browser reloads between sections.
-* **Architecture Exception (Spotify):** The Spotify "Now Playing" widget is the ONLY component that bypasses SSG. It must be a React Island (`client:load`) that fetches from a serverless proxy (Edge Function) at runtime. The backend proxy must hold the Spotify OAuth token securely. Do NOT expose credentials client-side.
+* **Architecture Exception (Spotify):** The Spotify "Now Playing" widget bypasses SSG. It must be a React Island (`client:load`) that fetches from a serverless proxy (Edge Function) at runtime. The backend proxy must hold the Spotify OAuth token securely. Do NOT expose credentials client-side.
 * **Content Sync Gate:** Before `astro build`, run a deterministic content sync step to populate `/src/content/` from the private vault source. The build MUST fail if `/src/content/` is missing or stale.
 
-## 3. DIRECTORY STRUCTURE (ASTRO STANDARD)
+## 3. DIRECTORY STRUCTURE (ASTRO 5 STANDARD)
 
-* `/src/content/`: Where all the Obsidian `.md` files will reside.
+* **Astro Version Lock:** This project targets **Astro 5.x**. Content Collections MUST use the Astro 5 Loader API. Collections are defined in `src/content.config.ts` using explicit `glob()` loaders from `astro/loaders` and `z` from `astro/zod`. Do NOT use the legacy filesystem-based API from Astro 2–4 (no `src/content/config.ts`).
+* `/src/content/`: Where all the Obsidian `.md` files will reside after the pre-build sync.
+* `/src/content.config.ts`: Astro 5 Content Collections definition. Uses `glob({ pattern: '**/*.md', base: './src/content' })` as loader.
+* `/src/generated/sections.ts`: Auto-generated by pre-build sync. Exports `SECTIONS as const` array. Imported by `content.config.ts` for schema validation.
 * `/src/layouts/`: The base structural layouts (Global, Section, Article).
 * `/src/components/`: Reusable UI elements (Sidebar, Header, React widgets).
 * `/src/pages/`: Routing logic.

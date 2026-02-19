@@ -8,7 +8,7 @@ This is a utilitarian, text-first, structure-driven web system.
 
 * **Visual Anchor:** yeezy.com. Severe minimalism, utilitarian interfaces.
 * **Data Anchor:** Obsidian/Markdown. The entire site is a render engine for `.md` files hosted on a private GitHub repo.
-* **Typography:** IBM Plex Sans strictly.
+* **Typography:** IBM Plex Sans (primary, all body text). IBM Plex Mono (secondary, ONLY for telemetry widgets: Clock, Spotify widget, YouTube log rows). No other typefaces are permitted.
 * **Vibe:** A terminal interface translated into a modern browser. Sparse, cold, but highly functional.
 
 ## 2. THE GOLDEN RULES

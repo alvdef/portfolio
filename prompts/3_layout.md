@@ -11,9 +11,9 @@ The layout consists of three permanent zones:
    * **Center:** Current active section (solid text).
    * **Left/Right of Center:** Adjacent X-axis sections (dimmed text).
    * **Hidden:** Other sections do not exist visually until rotated into the Next/Prev slots.
-   * **Circular Wrapping (Mandatory):** The carousel MUST wrap around circularly. If the current section is the first one (e.g., `about_me`), `[PREVIOUS]` displays the LAST section (e.g., `other_projects`). If current is the last, `[NEXT]` displays the first. There is NEVER an empty slot or a disabled state in the carousel.
+   * **Circular Wrapping (Mandatory):** The carousel MUST wrap around circularly. The section order is determined by the sorted list from `src/generated/sections.ts`. If the current section is the first, `[PREVIOUS]` displays the last section. If current is the last, `[NEXT]` displays the first. There is NEVER an empty slot or a disabled state in the carousel.
    * **Corners:** Utility widgets (Clock on the far-left, Spotify "Now Playing" on the far-right).
-2. **Left Sidebar (Index):** A structural table of contents for the current section.
+2. **Left Sidebar (Index):** A structural table of contents for the current section (on mobile it remains structural but collapsed by default into a drawer trigger).
 3. **Main Content Area:** The rendered `.md` file. Always displays a full article, never a truncated card, snippet, or expansion accordion. Content must strictly align to the severe mathematical grid; it must not be centrally floated like a traditional blog.
 
 ## 2. THE LEFT SIDEBAR LOGIC
@@ -28,3 +28,4 @@ The layout consists of three permanent zones:
 * **Sequential Links:** Include "Next / Prev" text links at the absolute bottom of every rendered article (HackerNews style).
 * **Purpose:** Encourage sequential reading within the current section.
 * **Aesthetic:** Purely utilitarian. No bulky buttons, just formatted text links.
+* **Edge Behavior:** The first article in a section has no "Prev" link (omit it entirely). The last article has no "Next" link. There is NO circular wrapping in article pagination.

@@ -1,0 +1,50 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getPublishedDocs, groupDocsByGroup } from '@/lib/content';
+import { SECTIONS } from '@/generated/sections';
+
+export async function getStaticPaths() {
+  const docs = await getPublishedDocs();
+  return docs.map((doc) => ({
+    params: {
+      section: doc.data.section,
+      slug: doc.data.slug
+    },
+    props: { doc }
+  }));
+}
+
+const { doc } = Astro.props;
+const { Content } = await render(doc);
+
+const docs = await getPublishedDocs();
+const sectionDocs = docs.filter((d) => d.data.section === doc.data.section);
+const sectionGroups = groupDocsByGroup(sectionDocs);
+
+const index = sectionDocs.findIndex((d) => d.id === doc.id);
+const prevDoc = index > 0 ? sectionDocs[index - 1] : null;
+const nextDoc = index < sectionDocs.length - 1 ? sectionDocs[index + 1] : null;
+---
+
+<BaseLayout
+  title={doc.data.title}
+  currentSection={doc.data.section}
+  sections={[...SECTIONS]}
+  sectionGroups={sectionGroups}
+  currentSlug={doc.data.slug}
+  prevUrl={prevDoc ? `/${prevDoc.data.section}/${prevDoc.data.slug}` : null}
+  nextUrl={nextDoc ? `/${nextDoc.data.section}/${nextDoc.data.slug}` : null}
+>
+  <article id="article-scroll-root" class="article-body" data-next-url={nextDoc ? `/${nextDoc.data.section}/${nextDoc.data.slug}` : ''} data-prev-url={prevDoc ? `/${prevDoc.data.section}/${prevDoc.data.slug}` : ''}>
+    <header class="article-header">
+      <h1>{doc.data.title}</h1>
+      <p class="meta">{doc.data.group} / {new Date(doc.data.date).toISOString().slice(0, 10)}</p>
+    </header>
+    <Content />
+    <footer class="article-footer">
+      {prevDoc ? <a href={`/${prevDoc.data.section}/${prevDoc.data.slug}`}>Prev</a> : <span />}
+      {nextDoc ? <a href={`/${nextDoc.data.section}/${nextDoc.data.slug}`}>Next</a> : <span />}
+    </footer>
+  </article>
+</BaseLayout>

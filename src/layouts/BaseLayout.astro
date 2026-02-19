@@ -1,0 +1,152 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import HeaderCarousel from '@/components/HeaderCarousel.astro';
+import Sidebar from '@/components/Sidebar.astro';
+import ScrollResistance from '@/components/ScrollResistance';
+import '@/styles/global.css';
+
+interface Props {
+  title: string;
+  currentSection: string;
+  sections: string[];
+  sectionGroups: Array<{ group: string; items: Array<{ data: { title: string; slug: string; section: string } }> }>;
+  currentSlug: string;
+  prevUrl: string | null;
+  nextUrl: string | null;
+}
+
+const { title, currentSection, sections, sectionGroups, currentSlug, prevUrl, nextUrl } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" data-nav-dir="none">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <ClientRouter />
+  </head>
+  <body>
+    <div class="app-grid">
+      <HeaderCarousel sections={sections} currentSection={currentSection} />
+
+      <button id="index-toggle" class="index-toggle" type="button" aria-controls="sidebar-index" aria-expanded="false">INDEX ↓</button>
+      <Sidebar groups={sectionGroups} currentSlug={currentSlug} />
+
+      <main class="content-pane" data-prev-url={prevUrl ?? ''} data-next-url={nextUrl ?? ''}>
+        <slot />
+      </main>
+      <ScrollResistance client:load />
+    </div>
+
+    <script>
+      import { navigate } from 'astro:transitions/client';
+
+      window.__portfolioNavState = window.__portfolioNavState || { isNavigating: false, pauseOverscroll: false };
+
+      const toggleButton = document.getElementById('index-toggle');
+      const sidebar = document.getElementById('sidebar-index');
+
+      function setDrawer(open) {
+        if (!toggleButton || !sidebar) return;
+        toggleButton.setAttribute('aria-expanded', String(open));
+        toggleButton.textContent = open ? 'INDEX ↑' : 'INDEX ↓';
+        sidebar.dataset.open = open ? 'true' : 'false';
+      }
+
+      toggleButton?.addEventListener('click', () => {
+        const expanded = toggleButton.getAttribute('aria-expanded') === 'true';
+        setDrawer(!expanded);
+      });
+
+      sidebar?.addEventListener('click', (event) => {
+        const target = event.target;
+        if (target instanceof HTMLAnchorElement) {
+          setDrawer(false);
+        }
+      });
+
+      function isTypingTarget(target) {
+        if (!(target instanceof HTMLElement)) return false;
+        const tag = target.tagName.toLowerCase();
+        return tag === 'input' || tag === 'textarea' || tag === 'select' || target.isContentEditable;
+      }
+
+      document.addEventListener('astro:before-preparation', (event) => {
+        if (event.navigationType === 'traverse') {
+          document.documentElement.dataset.navDir = 'none';
+        }
+      });
+
+      document.addEventListener('astro:after-swap', () => {
+        window.__portfolioNavState.isNavigating = false;
+      });
+
+      document.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        const link = target.closest('a[data-nav-dir]');
+        if (!link) return;
+        document.documentElement.dataset.navDir = link.dataset.navDir || 'none';
+      });
+
+      document.addEventListener('focusin', (event) => {
+        const target = event.target;
+        if (target instanceof HTMLIFrameElement) {
+          window.__portfolioNavState.pauseOverscroll = true;
+        }
+      });
+
+      document.addEventListener('focusout', (event) => {
+        const target = event.target;
+        if (target instanceof HTMLIFrameElement) {
+          window.__portfolioNavState.pauseOverscroll = false;
+        }
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.metaKey || event.ctrlKey || event.altKey) return;
+        if (isTypingTarget(event.target)) return;
+        if (window.__portfolioNavState?.isNavigating) return;
+
+        const root = document.getElementById('article-scroll-root');
+        const prevUrl = root?.dataset.prevUrl;
+        const nextUrl = root?.dataset.nextUrl;
+
+        if (event.key === 'h') {
+          const left = document.querySelector('a[data-nav-dir="left"]');
+          if (left instanceof HTMLAnchorElement) {
+            event.preventDefault();
+            window.__portfolioNavState.isNavigating = true;
+            document.documentElement.dataset.navDir = 'left';
+            navigate(left.href);
+          }
+        }
+
+        if (event.key === 'l') {
+          const right = document.querySelector('a[data-nav-dir="right"]');
+          if (right instanceof HTMLAnchorElement) {
+            event.preventDefault();
+            window.__portfolioNavState.isNavigating = true;
+            document.documentElement.dataset.navDir = 'right';
+            navigate(right.href);
+          }
+        }
+
+        if (event.key === 'j' && nextUrl) {
+          event.preventDefault();
+          window.__portfolioNavState.isNavigating = true;
+          document.documentElement.dataset.navDir = 'down';
+          navigate(nextUrl);
+        }
+
+        if (event.key === 'k' && prevUrl) {
+          event.preventDefault();
+          window.__portfolioNavState.isNavigating = true;
+          document.documentElement.dataset.navDir = 'up';
+          navigate(prevUrl);
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,26 @@
+---
+import ClockWidget from '@/components/ClockWidget';
+import SpotifyNowPlaying from '@/components/SpotifyNowPlaying';
+
+interface Props {
+  sections: string[];
+  currentSection: string;
+}
+
+const { sections, currentSection } = Astro.props;
+const index = sections.indexOf(currentSection);
+const prevIndex = index <= 0 ? sections.length - 1 : index - 1;
+const nextIndex = index >= sections.length - 1 ? 0 : index + 1;
+const prevSection = sections[prevIndex];
+const nextSection = sections[nextIndex];
+---
+
+<header class="top-header">
+  <div class="widget-left"><ClockWidget client:load /></div>
+  <nav class="carousel-nav" aria-label="Section navigation">
+    <a href={`/${prevSection}`} data-nav-dir="left" class="dimmed">{prevSection}</a>
+    <span class="active">{currentSection}</span>
+    <a href={`/${nextSection}`} data-nav-dir="right" class="dimmed">{nextSection}</a>
+  </nav>
+  <div class="widget-right"><SpotifyNowPlaying client:load /></div>
+</header>

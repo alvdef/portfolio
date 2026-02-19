@@ -1,0 +1,24 @@
+{
+  "name": "utilitarian-portfolio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync:content": "node scripts/sync-content.mjs",
+    "check:content": "node scripts/check-content-freshness.mjs",
+    "predev": "npm run sync:content",
+    "dev": "npm run check:content && astro dev",
+    "prebuild": "npm run sync:content",
+    "build": "npm run check:content && astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/react": "^4.4.0",
+    "@tailwindcss/vite": "^4.1.12",
+    "@vercel/node": "^5.3.0",
+    "astro": "^5.13.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "tailwindcss": "^4.1.12"
+  }
+}

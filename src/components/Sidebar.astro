@@ -1,0 +1,32 @@
+---
+interface GroupItem {
+  group: string;
+  items: Array<{ data: { title: string; slug: string; section: string } }>;
+}
+
+interface Props {
+  groups: GroupItem[];
+  currentSlug: string;
+}
+
+const { groups, currentSlug } = Astro.props;
+---
+
+<aside class="sidebar" id="sidebar-index">
+  {
+    groups.map(({ group, items }) => (
+      <section>
+        <h2>{group}</h2>
+        <ul>
+          {items.map((item) => (
+            <li>
+              <a class={item.data.slug === currentSlug ? 'active' : ''} href={`/${item.data.section}/${item.data.slug}`}>
+                {item.data.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</aside>

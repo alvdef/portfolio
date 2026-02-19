@@ -1,0 +1,17 @@
+---
+import { getPublishedDocs } from '@/lib/content';
+import { SECTIONS } from '@/generated/sections';
+
+const docs = await getPublishedDocs();
+const firstSection = [...SECTIONS].find((section) => docs.some((doc) => doc.data.section === section));
+
+if (!firstSection) {
+  throw new Error('No published content found.');
+}
+
+const firstDoc = docs
+  .filter((doc) => doc.data.section === firstSection)
+  .sort((a, b) => a.data.order - b.data.order)[0];
+
+return Astro.redirect(`/${firstSection}/${firstDoc.data.slug}`);
+---

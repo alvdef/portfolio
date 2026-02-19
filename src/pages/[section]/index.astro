@@ -1,0 +1,25 @@
+---
+import { getPublishedDocs } from '@/lib/content';
+
+export async function getStaticPaths() {
+  const docs = await getPublishedDocs();
+  const sections = [...new Set(docs.map((doc) => doc.data.section))];
+  return sections.map((section) => ({ params: { section } }));
+}
+
+const { section } = Astro.params;
+if (!section) {
+  throw new Error('Missing section parameter');
+}
+
+const docs = await getPublishedDocs();
+const firstDoc = docs
+  .filter((doc) => doc.data.section === section)
+  .sort((a, b) => a.data.order - b.data.order)[0];
+
+if (!firstDoc) {
+  throw new Error(`No published docs for section: ${section}`);
+}
+
+return Astro.redirect(`/${section}/${firstDoc.data.slug}`);
+---

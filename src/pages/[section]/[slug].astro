@@ -4,6 +4,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getPublishedDocs, groupDocsByGroup } from '@/lib/content';
 import { getSectionLandingLinks } from '@/scripts/section-links';
 import { SECTIONS } from '@/generated/sections';
+import YoutubePlaylistTable from '@/components/YoutubePlaylistTable';
 
 export async function getStaticPaths() {
   const docs = await getPublishedDocs();
@@ -17,7 +18,10 @@ export async function getStaticPaths() {
 }
 
 const { doc } = Astro.props;
-const { Content } = await render(doc);
+const isVirtualDoc = doc.collection === 'virtual';
+const isYoutubeVirtualDoc = isVirtualDoc && doc.data.section === 'about_me' && doc.data.slug === 'youtube';
+const rendered = !isVirtualDoc ? await render(doc) : null;
+const Content = rendered?.Content ?? null;
 
 const docs = await getPublishedDocs();
 const sectionDocs = docs.filter((d) => d.data.section === doc.data.section);
@@ -55,6 +59,17 @@ const nextDoc = index < sectionDocs.length - 1 ? sectionDocs[index + 1] : null;
       <h1>{doc.data.title}</h1>
       <p class="meta">{doc.data.group} / {new Date(doc.data.date).toISOString().slice(0, 10)}</p>
     </header>
-    <Content />
+    {
+      isYoutubeVirtualDoc ? (
+        <section class="youtube-directory">
+          <p class="youtube-intro">Index of /codice/cl</p>
+          <YoutubePlaylistTable client:load />
+        </section>
+      ) : Content ? (
+        <Content />
+      ) : (
+        <p>Virtual document has no renderer.</p>
+      )
+    }
   </article>
 </BaseLayout>

@@ -348,6 +348,62 @@ a:hover {
   font-size: 0.8rem;
 }
 
+.youtube-directory {
+  margin-top: 1.2rem;
+}
+
+.youtube-intro {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1.85rem;
+  font-weight: 700;
+  margin: 0 0 0.9rem;
+}
+
+.youtube-loading,
+.youtube-error,
+.youtube-empty {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82rem;
+  margin: 0.5rem 0;
+}
+
+.youtube-error {
+  color: var(--muted);
+}
+
+.youtube-table-wrap {
+  overflow-x: auto;
+}
+
+.youtube-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82rem;
+}
+
+.youtube-table th,
+.youtube-table td {
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  padding: 0.38rem 0.2rem;
+  vertical-align: top;
+}
+
+.youtube-table th {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.youtube-table td:nth-child(1) {
+  min-width: 24rem;
+}
+
+.youtube-table td:nth-child(2),
+.youtube-table td:nth-child(3) {
+  white-space: nowrap;
+}
+
 .article-footer {
   margin-top: 4rem;
   padding-top: 1rem;

@@ -173,28 +173,6 @@ function getSourceHash(files) {
   return hash.digest('hex');
 }
 
-async function fetchYoutubeVideos(apiKey, playlistId) {
-  const endpoint = new URL('https://www.googleapis.com/youtube/v3/playlistItems');
-  endpoint.searchParams.set('part', 'snippet,contentDetails');
-  endpoint.searchParams.set('maxResults', '50');
-  endpoint.searchParams.set('playlistId', playlistId);
-  endpoint.searchParams.set('key', apiKey);
-
-  const response = await fetch(endpoint);
-  if (!response.ok) {
-    throw new Error(`YouTube fetch failed for playlist ${playlistId}: ${response.status}`);
-  }
-
-  const json = await response.json();
-  return (json.items ?? [])
-    .map((item) => {
-      const videoId = item?.contentDetails?.videoId;
-      const title = item?.snippet?.title;
-      const publishedAt = item?.snippet?.publishedAt;
-      return { videoId, title, publishedAt };
-    })
-    .filter((item) => item.videoId && item.title && item.publishedAt);
-}
 
 if (!existsSync(VAULT_DIR)) {
   throw new Error(`Vault directory not found: ${VAULT_DIR}. Set CONTENT_VAULT_DIR or create ./vault.`);
@@ -239,6 +217,11 @@ for (const section of sections) {
   for (const sourcePath of files) {
     const relative = path.relative(sourceSection, sourcePath);
     const outPath = path.join(targetSection, relative);
+    const baseName = path.basename(sourcePath);
+
+    if (baseName.startsWith('.')) {
+      continue;
+    }
 
     if (isMarkdown(sourcePath)) {
       mkdirSync(path.dirname(outPath), { recursive: true });
@@ -263,61 +246,6 @@ for (const section of sections) {
     if (isImage(sourcePath)) {
       const fileName = path.basename(sourcePath);
       cpSync(sourcePath, path.join(targetImages, fileName));
-    }
-  }
-}
-
-const youtubeApiKey = process.env.YOUTUBE_API_KEY;
-const youtubePlaylists = (process.env.YOUTUBE_PLAYLIST_IDS ?? '')
-  .split(',')
-  .map((entry) => entry.trim())
-  .filter(Boolean);
-const youtubeSection =
-  process.env.YOUTUBE_SECTION && sections.includes(process.env.YOUTUBE_SECTION)
-    ? process.env.YOUTUBE_SECTION
-    : sections.includes('msc')
-      ? 'msc'
-      : sections[0];
-const youtubeGroup = process.env.YOUTUBE_GROUP && vaultConfig.groups.includes(process.env.YOUTUBE_GROUP)
-  ? process.env.YOUTUBE_GROUP
-  : vaultConfig.groups[0];
-
-if (youtubeApiKey && youtubePlaylists.length > 0) {
-  const targetSection = path.join(CONTENT_DIR, youtubeSection);
-  mkdirSync(targetSection, { recursive: true });
-
-  for (const playlistId of youtubePlaylists) {
-    const videos = await fetchYoutubeVideos(youtubeApiKey, playlistId);
-    for (const video of videos) {
-      const date = new Date(video.publishedAt).toISOString().slice(0, 10);
-      const title = `YT ${video.videoId}`;
-      const fileName = `youtube-${video.videoId}.md`;
-      const markdown = `${stringifyFrontmatter({
-        title,
-        slug: `youtube-${video.videoId}`,
-        section: youtubeSection,
-        group: youtubeGroup,
-        order: 9000,
-        date,
-        status: 'published',
-        tag: ['YOUTUBE', playlistId]
-      })}# [${date}] | [${video.videoId}] | ${video.title}
-
-<details>
-<summary>Reveal video</summary>
-
-<iframe
-  src="https://www.youtube.com/embed/${video.videoId}?rel=0&controls=1"
-  title="${video.title.replaceAll('"', '&quot;')}"
-  loading="lazy"
-  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-  referrerpolicy="strict-origin-when-cross-origin"
-  allowfullscreen
-></iframe>
-
-</details>
-`;
-      writeFileSync(path.join(targetSection, fileName), markdown);
     }
   }
 }

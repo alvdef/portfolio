@@ -1,10 +1,42 @@
-import { getCollection } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 
-export type DocEntry = Awaited<ReturnType<typeof getPublishedDocs>>[number];
+type MarkdownDoc = CollectionEntry<'docs'>;
+
+type VirtualDocData = MarkdownDoc['data'] & {
+  isVirtual: true;
+};
+
+export type VirtualDocEntry = {
+  id: string;
+  collection: 'virtual';
+  data: VirtualDocData;
+};
+
+export type DocEntry = MarkdownDoc | VirtualDocEntry;
+
+function getVirtualDocs(): VirtualDocEntry[] {
+  return [
+    {
+      id: 'virtual:about_me:youtube',
+      collection: 'virtual',
+      data: {
+        title: 'YouTube',
+        slug: 'youtube',
+        order: 9998,
+        date: new Date('2026-02-21'),
+        section: 'about_me',
+        group: 'PERSONAL',
+        status: 'published',
+        tag: ['YOUTUBE'],
+        isVirtual: true
+      }
+    }
+  ];
+}
 
 export async function getPublishedDocs() {
   const docs = await getCollection('docs', ({ data }) => data.status !== 'draft');
-  return docs.sort((a, b) => a.data.order - b.data.order || a.data.title.localeCompare(b.data.title));
+  return [...docs, ...getVirtualDocs()].sort((a, b) => a.data.order - b.data.order || a.data.title.localeCompare(b.data.title));
 }
 
 export async function getSectionsInUse() {

@@ -39,3 +39,4 @@
 - Disabled Spotify track marquee animation; long now-playing text is clipped with ellipsis instead of scrolling.
 - Hid the now-playing widget on mobile viewports (`max-width: 960px`) to keep header controls concise.
 - Aligned the desktop status breadcrumb start with the header clock using a shared horizontal offset.
+- Added a virtual `about_me/youtube` article rendered from code (not markdown) that fetches playlist metadata dynamically and merges note annotations from `vault/about_me/.youtube.md`.

@@ -41,6 +41,7 @@
 
 ## Commit & Pull Request Guidelines
 - Follow Conventional Commit style shown in history: `feat: ...`, `docs: ...`.
+- **Commit cadence**: Commit after every discrete unit of completed work (each passing test cycle, each implemented step). Never leave more than one logical change uncommitted.
 - Keep commits focused by concern (content pipeline, layout, interaction, API).
 - PRs should include:
 - Purpose and scope summary.

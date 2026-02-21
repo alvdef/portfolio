@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+'use client';
+
+import { Fragment, useEffect, useState } from 'react';
 
 type Row = {
   videoId: string;
@@ -6,6 +8,8 @@ type Row = {
   url: string;
   uploadedAt: string;
   views: number;
+  channelTitle: string;
+  channelUrl: string;
   note: string;
 };
 
@@ -57,8 +61,6 @@ export default function YoutubePlaylistTable() {
     };
   }, []);
 
-  const formatter = useMemo(() => new Intl.NumberFormat('en-US'), []);
-
   if (loading) {
     return <p className="youtube-loading">Loading playlist...</p>;
   }
@@ -74,26 +76,40 @@ export default function YoutubePlaylistTable() {
   return (
     <div className="youtube-table-wrap">
       <table className="youtube-table">
+        <colgroup>
+          <col className="youtube-col-title" />
+          <col className="youtube-col-date" />
+          <col className="youtube-col-channel" />
+        </colgroup>
         <thead>
           <tr>
             <th>Name</th>
-            <th>Upload date</th>
-            <th>Views</th>
-            <th>Notes</th>
+            <th className="youtube-col-date">Upload date</th>
+            <th>Channel</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.videoId}>
-              <td>
-                <a href={row.url} target="_blank" rel="noreferrer">
-                  {row.title}
-                </a>
-              </td>
-              <td>{row.uploadedAt}</td>
-              <td>{formatter.format(row.views)}</td>
-              <td>{row.note || '-'}</td>
-            </tr>
+            <Fragment key={row.videoId}>
+              <tr className="youtube-row-main">
+                <td className="youtube-cell-title">
+                  <a href={row.url} target="_blank" rel="noreferrer" className="youtube-title-link" title={row.title}>
+                    {row.title}
+                  </a>
+                </td>
+                <td className="youtube-cell-date" title={row.uploadedAt}>{row.uploadedAt}</td>
+                <td className="youtube-cell-channel">
+                  <a href={row.channelUrl} target="_blank" rel="noreferrer" className="youtube-channel-link">
+                    {row.channelTitle}
+                  </a>
+                </td>
+              </tr>
+              <tr className="youtube-row-notes">
+                <td colSpan={3} className="youtube-notes-cell">
+                  <em>{row.note?.trim() ? row.note : '---'}</em>
+                </td>
+              </tr>
+            </Fragment>
           ))}
         </tbody>
       </table>

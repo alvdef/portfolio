@@ -1,97 +1,62 @@
 # portfolio
 
-Markdown-first portfolio. Content lives in an Obsidian vault, syncs to Astro at build time, deploys as static HTML to Vercel.
+Markdown-first portfolio on Next.js App Router.
 
 ## Stack
 
-Astro 5, React 19 (islands), Tailwind CSS 4, TypeScript.
+Next.js 16, React 19, Contentlayer (MDX), TypeScript.
 
-## Content pipeline
+## Content
 
-```
-vault/           -->  npm run sync:content  -->  src/content/    -->  astro build  -->  dist/
-(obsidian)            rewrites images,           (generated md)       static HTML
-                      injects frontmatter,
-                      generates sections.ts
-                      and groups.ts
-```
+Content lives in `content/` and is loaded by Contentlayer.
 
-The vault is the source of truth. Each top-level folder becomes a section. Folders starting with `.` are ignored (`.obsidian`, `.notes`, `.assets`). Global images go in `vault/.assets/`.
-
-Group taxonomy is defined in `vault/.config.yaml`.
-
-A SHA256 hash of the vault is stored in `src/generated/content-sync.json`. The build fails if content is stale — forces a fresh sync.
-
-## Frontmatter
-
-Injected automatically by the sync script. You only need to set `title`, `group`, `order`, and `date` in the vault markdown. The rest (`section`, `slug`, `status`) is derived.
+- Section/article routes come from frontmatter fields (`section`, `slug`, `order`, `status`).
+- `content/about_me/.youtube.md` stores the playlist id and optional per-video notes.
+- Static assets are served from `public/images/`.
 
 ## Structure
 
 ```
-vault/                   # Obsidian vault (source of truth)
-src/content/             # Generated markdown (do not edit)
-src/generated/           # Generated TS (sections, groups)
-src/components/          # Astro + React islands
-src/layouts/             # BaseLayout (single shell)
-src/pages/               # [section]/[slug].astro routes
-src/styles/global.css    # All styles (monochrome theme)
-api/                     # Vercel serverless (Spotify proxy)
-scripts/                 # sync-content, check-freshness
+app/                     # Next routes and API route handlers
+content/                 # Markdown/MDX source of truth
+src/components/          # React UI components
+src/features/            # Client controllers (navigation/sidebar/theme)
+src/lib/                 # Content helpers
+src/server/              # Server-side Spotify/YouTube helpers
+src/styles/              # Monochrome stylesheet modules
+public/                  # Static assets
 ```
-
-## Navigation
-
-Vim-style: `h`/`l` cycle sections, `j`/`k` cycle articles within a section. Overscrolling past an article boundary peeks the next article title; keep scrolling to snap to it.
 
 ## Running
 
-```
-cp .env.example .env     # fill in Spotify creds (optional)
+```bash
+cp .env.example .env
 npm install
-npm run dev              # syncs vault, starts dev server
+npm run dev
 ```
 
 ## Environment
-
-Spotify widget uses your account only. Visitors never authenticate with Spotify.
 
 Required:
 - `SPOTIFY_CLIENT_ID`
 - `SPOTIFY_CLIENT_SECRET`
 - `SPOTIFY_REDIRECT_URI`
+- `YOUTUBE_API_KEY`
 
-Optional until setup is complete:
+Optional:
 - `SPOTIFY_REFRESH_TOKEN`
+- `YOUTUBE_NOTES_FILE` (defaults to `content/about_me/.youtube.md`)
 
-Without a refresh token, the widget fallback stays `Silence`.
+Without `SPOTIFY_REFRESH_TOKEN`, now-playing falls back to `Silence`.
 
-### One-time refresh token setup
+## Navigation
 
-Production (recommended):
-1. In Spotify Developer Dashboard, add your production redirect URI:
-`https://your-domain.vercel.app/api/spotify-callback`
-2. Set `.env` / Vercel project env:
-`SPOTIFY_REDIRECT_URI=https://your-domain.vercel.app/api/spotify-callback`
-3. Deploy.
-4. Open: `https://your-domain.vercel.app/api/spotify-authorize`
-5. Log in and approve access.
-6. The callback page prints:
-`SPOTIFY_REFRESH_TOKEN=...`
-7. Save that value in Vercel env vars and local `.env`.
+Vim-style keys:
+- `h`/`l`: previous/next section
+- `j`/`k`: next/previous article
 
-Local development (allowed by Spotify for localhost):
-1. Add local redirect URI too:
-`http://localhost:4321/api/spotify-callback`
-2. Set `.env` for local runs:
-`SPOTIFY_REDIRECT_URI=http://localhost:4321/api/spotify-callback`
-3. Start the app: `npm run dev`
-4. Open: `http://localhost:4321/api/spotify-authorize`
-5. Log in and approve access.
-6. The callback page prints:
-`SPOTIFY_REFRESH_TOKEN=...`
-7. Put that value in `.env`, restart dev server.
+Overscroll peek+snap remains enabled for article boundaries.
 
 ## Design constraints
 
-Monochrome. No rounded corners, no shadows, no gradients. IBM Plex Sans + Mono. Light/dark toggle persisted in localStorage.
+Monochrome. No rounded corners, no shadows, no gradients.

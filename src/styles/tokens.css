@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --radius-*: initial;
+  --radius-none: 0px;
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
+  --radius-full: 0px;
+
+  --shadow-*: initial;
+  --shadow-none: none;
+  --shadow-2xs: none;
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-2xl: none;
+
+  --drop-shadow-*: initial;
+  --drop-shadow-none: none;
+  --drop-shadow-xs: none;
+  --drop-shadow-sm: none;
+  --drop-shadow-md: none;
+  --drop-shadow-lg: none;
+  --drop-shadow-xl: none;
+  --ring-width: 0px;
+
+  --color-*: initial;
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #e2e2e2;
+  --color-gray-400: #9a9a9a;
+  --color-gray-700: #454545;
+  --color-gray-900: #181818;
+}
+
+:root {
+  --bg: var(--color-white);
+  --fg: var(--color-black);
+  --muted: var(--color-gray-700);
+  --line: var(--color-gray-200);
+  --pane-width: minmax(0, 1fr);
+  --status-height: 1.6rem;
+  --motion-apple: cubic-bezier(0.32, 0.72, 0, 1);
+  --motion-apple-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ui-duration-fast: 260ms;
+  --ui-ease: var(--motion-apple-soft);
+  --section-shift: 22px;
+  --section-duration: 420ms;
+  --section-ease: var(--motion-apple);
+  --article-shift: 16px;
+  --article-duration: 360ms;
+  --article-ease: var(--motion-apple-soft);
+  --key-nav-duration: 320ms;
+  --key-nav-ease: cubic-bezier(0.25, 0.8, 0.25, 1);
+  --key-section-shift: 30px;
+  --key-article-shift: 22px;
+  --header-clock-offset: 2.4rem;
+}
+
+:root[data-theme='light'] {
+  --bg: var(--color-white);
+  --fg: var(--color-black);
+  --muted: var(--color-gray-700);
+  --line: var(--color-gray-200);
+}
+
+:root[data-theme='dark'] {
+  --bg: rgb(25 25 25);
+  --fg: var(--color-white);
+  --muted: var(--color-gray-400);
+  --line: var(--color-gray-700);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: rgb(25 25 25);
+    --fg: var(--color-white);
+    --muted: var(--color-gray-400);
+    --line: var(--color-gray-700);
+  }
+}

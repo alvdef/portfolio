@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 
 function formatNow(date: Date) {
@@ -5,10 +7,12 @@ function formatNow(date: Date) {
 }
 
 export default function ClockWidget() {
-  const [value, setValue] = useState(() => formatNow(new Date()));
+  const [value, setValue] = useState('--:--:--');
 
   useEffect(() => {
-    const timer = window.setInterval(() => setValue(formatNow(new Date())), 1000);
+    const tick = () => setValue(formatNow(new Date()));
+    tick();
+    const timer = window.setInterval(tick, 1000);
     return () => window.clearInterval(timer);
   }, []);
 

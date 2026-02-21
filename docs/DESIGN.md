@@ -16,6 +16,10 @@
 
 ## 2026-02-21
 
+- Migrated the portfolio runtime from Astro to Next.js App Router using a big-bang replacement strategy.
+- Replaced generated Astro content collections with a Contentlayer-backed `content/` source of truth.
+- Moved server endpoints to Next Route Handlers while preserving existing API paths and response contracts.
+- Standardized content notes lookup for YouTube metadata under `content/about_me/.youtube.md`.
 - Added project-wide ESLint flat configuration for Astro + TypeScript (including React islands) and standardized npm lint scripts (`lint`, `lint:fix`).
 - Switched hidden vault conventions from `_` prefix to `.` prefix for top-level non-section folders and other elements.
 - Header carousel shows all sections and keeps the active section centered.
@@ -40,3 +44,21 @@
 - Hid the now-playing widget on mobile viewports (`max-width: 960px`) to keep header controls concise.
 - Aligned the desktop status breadcrumb start with the header clock using a shared horizontal offset.
 - Added a virtual `about_me/youtube` article rendered from code (not markdown) that fetches playlist metadata dynamically and merges note annotations from `vault/about_me/.youtube.md`.
+- Article reading column is left-aligned in the content pane and widened (`90ch`) for denser desktop reading.
+- YouTube playlist table now uses two rows per video (metadata row + notes row), with single-line ellipsis for long titles and non-wrapping upload dates.
+- YouTube playlist metadata columns (`Upload date`, `Views`) are left-biased with auto table sizing, and notes row spacing is tightened to visually pair notes with each video title.
+- YouTube playlist table disables horizontal scrolling and uses fixed column sizing so content always fits container width, with ellipsis on long single-line fields.
+- YouTube playlist table orders metadata columns on the left (`Upload date`, `Views`) with tighter inter-column spacing to prioritize scanability.
+- YouTube playlist metadata columns stay anchored at the far right; `Upload date` compresses slightly to leave more room for the channel hyperlink column while keeping the italicized notes row with a `---` fallback.
+- Mobile header omits live clock and theme toggle to prioritize navigation controls.
+- Section carousel keeps the active section as the anchor and allows horizontal scrolling so all sections remain reachable on small screens.
+- Stylesheet architecture is layered: global entrypoint imports dedicated token/base/layout/component/state/responsive CSS modules.
+- Frontend swap lifecycle is centralized in a single app lifecycle module instead of being wired inline in layout templates.
+- DOM dataset access for article/section navigation uses shared typed helper utilities to reduce stringly-typed selectors and key lookups.
+- Client controllers/helpers are organized by feature under `src/features/*` (navigation, sidebar, theme, app lifecycle, shared UI constants).
+- Section header navigation now keeps the active section fixed at the visual center while neighboring section labels compress at the edges.
+- Article reading offset remains left-biased on desktop but gracefully recenters on narrower viewports to prevent left-edge clipping.
+- Navigation and UI motion now use softer, spring-like easing with subtle scale/opacity continuity instead of rigid linear-feeling movement.
+- Vim-style keyboard navigation (`h/j/k/l`) uses a dedicated, low-amplitude transition profile to keep rapid article/section stepping visually stable.
+- Header clock now hydrates from a static placeholder and starts ticking after mount to avoid hydration mismatch resets during navigation.
+- Vim-style keyboard navigation (`h/j/k/l`) now uses a higher-amplitude dedicated transition profile so motion is clearly perceptible.

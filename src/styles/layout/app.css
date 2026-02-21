@@ -1,0 +1,24 @@
+/* ── Layout ── */
+
+.app-grid {
+  display: grid;
+  grid-template-columns: var(--sidebar-width, 15rem) 1fr;
+  grid-template-rows: auto 1fr;
+  min-height: 100vh;
+  transition: grid-template-columns var(--ui-duration-fast) var(--ui-ease);
+}
+
+.app-grid[data-sidebar-open='false'] {
+  --sidebar-width: 0rem;
+}
+
+.top-header {
+  grid-column: 1 / -1;
+  border-bottom: 1px solid var(--line);
+  min-height: 3rem;
+  padding: 0.5rem 0.75rem;
+  display: grid;
+  align-items: center;
+  grid-template-columns: minmax(0, 1fr) minmax(14rem, 52rem) minmax(0, 1fr);
+  gap: 0.75rem;
+}

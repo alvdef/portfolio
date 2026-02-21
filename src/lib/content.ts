@@ -1,65 +1,82 @@
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { allDocs, type Doc } from 'contentlayer/generated';
 
-type MarkdownDoc = CollectionEntry<'docs'>;
-
-type VirtualDocData = MarkdownDoc['data'] & {
+export type VirtualDocData = {
+  title: string;
+  slug: string;
+  order: number;
+  date: string;
+  section: string;
+  group: string;
+  status: string;
+  tag?: string[];
   isVirtual: true;
 };
 
 export type VirtualDocEntry = {
-  id: string;
-  collection: 'virtual';
-  data: VirtualDocData;
-};
+  _id: string;
+  _raw: { flattenedPath: string };
+  sourceType: 'virtual';
+  body?: { code: string };
+} & VirtualDocData;
 
-export type DocEntry = MarkdownDoc | VirtualDocEntry;
+export type DocEntry = (Doc & { sourceType: 'doc' }) | VirtualDocEntry;
+
+function toDocEntry(doc: Doc): DocEntry {
+  return { ...doc, sourceType: 'doc' };
+}
 
 function getVirtualDocs(): VirtualDocEntry[] {
   return [
     {
-      id: 'virtual:about_me:youtube',
-      collection: 'virtual',
-      data: {
-        title: 'YouTube',
-        slug: 'youtube',
-        order: 9998,
-        date: new Date('2026-02-21'),
-        section: 'about_me',
-        group: 'PERSONAL',
-        status: 'published',
-        tag: ['YOUTUBE'],
-        isVirtual: true
-      }
+      _id: 'virtual:about_me:youtube',
+      _raw: { flattenedPath: 'about_me/youtube' },
+      sourceType: 'virtual',
+      title: 'YouTube Recommendations',
+      slug: 'youtube',
+      order: 9998,
+      date: '2026-02-21',
+      section: 'about_me',
+      group: 'PERSONAL',
+      status: 'published',
+      tag: ['YOUTUBE'],
+      isVirtual: true
     }
   ];
 }
 
-export async function getPublishedDocs() {
-  const docs = await getCollection('docs', ({ data }) => data.status !== 'draft');
-  return [...docs, ...getVirtualDocs()].sort((a, b) => a.data.order - b.data.order || a.data.title.localeCompare(b.data.title));
+function compareDocs(a: DocEntry, b: DocEntry) {
+  return a.order - b.order || a.title.localeCompare(b.title);
+}
+
+export async function getPublishedDocs(): Promise<DocEntry[]> {
+  const docs = allDocs
+    .filter((doc) => doc.status !== 'draft')
+    .map((doc) => toDocEntry(doc));
+
+  return [...docs, ...getVirtualDocs()].sort(compareDocs);
 }
 
 export async function getSectionsInUse() {
   const docs = await getPublishedDocs();
-  return [...new Set(docs.map((doc) => doc.data.section))];
+  return [...new Set(docs.map((doc) => doc.section))];
 }
 
 export async function getDocsForSection(section: string) {
   const docs = await getPublishedDocs();
-  return docs.filter((doc) => doc.data.section === section);
+  return docs.filter((doc) => doc.section === section);
 }
 
 export async function getDocBySectionAndSlug(section: string, slug: string) {
   const docs = await getPublishedDocs();
-  return docs.find((doc) => doc.data.section === section && doc.data.slug === slug);
+  return docs.find((doc) => doc.section === section && doc.slug === slug);
 }
 
-export function groupDocsByGroup<T extends { data: { group: string } }>(docs: T[]) {
+export function groupDocsByGroup<T extends { group: string }>(docs: T[]) {
   const grouped = new Map<string, T[]>();
   for (const doc of docs) {
-    const arr = grouped.get(doc.data.group) ?? [];
+    const arr = grouped.get(doc.group) ?? [];
     arr.push(doc);
-    grouped.set(doc.data.group, arr);
+    grouped.set(doc.group, arr);
   }
   return [...grouped.entries()].map(([group, items]) => ({ group, items }));
 }

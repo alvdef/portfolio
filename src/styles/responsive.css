@@ -1,0 +1,82 @@
+/* ── Mobile ── */
+
+@media (max-width: 960px) {
+  :root {
+    --section-shift: 16px;
+    --article-shift: 12px;
+  }
+
+  .app-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 3rem;
+    left: 0;
+    right: 0;
+    bottom: auto;
+    width: 100%;
+    height: auto;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+    z-index: 40;
+    transition: max-height var(--ui-duration-fast) var(--ui-ease), padding var(--ui-duration-fast) var(--ui-ease);
+  }
+
+  .sidebar[data-open='true'] {
+    max-height: 55vh;
+    padding: 0.75rem;
+    overflow: auto;
+  }
+
+  .top-header {
+    grid-template-columns: minmax(2rem, 1fr) minmax(0, 1fr) minmax(2rem, 1fr);
+  }
+
+  .content-pane {
+    grid-column: 1;
+  }
+
+  .article-body {
+    max-width: 100%;
+    padding: 8vh 0.9rem 3rem;
+    transform: none;
+  }
+
+  .widget-left,
+  .widget-right {
+    font-size: 0.7rem;
+  }
+
+  .widget-right {
+    min-width: 2rem;
+  }
+
+  .spotify-now-playing {
+    display: none;
+  }
+
+  .top-header .header-clock,
+  .top-header #theme-toggle {
+    display: none !important;
+  }
+
+  .carousel-item {
+    font-size: 0.62rem;
+    padding: 0 0.55rem;
+    max-width: 10rem;
+  }
+
+  .carousel-item.active {
+    font-size: 0.85rem;
+  }
+
+  .status-line {
+    display: none;
+  }
+}

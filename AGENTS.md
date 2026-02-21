@@ -7,6 +7,8 @@
 - Do not log minor quirks that can be inferred from code.
 - Keep entries brief and in `-` bullet format, grouped by date.
 - If no meaningful project decision/state change happened, add nothing.
+- Do not write how you did it, write what was the idea.
+- Do not put implementation details (e.g. max-width: 960px)
 
 ## Project Structure & Module Organization
 - `src/` contains the Astro app:

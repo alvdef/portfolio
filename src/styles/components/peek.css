@@ -1,0 +1,38 @@
+/* ── Peek strip ── */
+
+.peek-strip {
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.peek-strip[data-direction='up'] {
+  border-top: none;
+  border-bottom: 1px solid var(--line);
+}
+
+.peek-strip-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.75rem 1.25rem;
+}
+
+.peek-strip-title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 50ch;
+}
+
+.peek-strip-meta {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+}

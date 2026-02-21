@@ -1,0 +1,182 @@
+/* ── Content ── */
+
+.content-pane {
+  padding: 0;
+  overflow-x: visible;
+  overflow-y: hidden;
+}
+
+.article-body {
+  height: calc(100vh - 3rem);
+  overflow-y: auto;
+  touch-action: pan-y;
+  padding: 15vh 1.25rem 4rem;
+  max-width: 80ch;
+  margin: 0 auto;
+  transform: translateX(clamp(-2.75rem, -5vw, -0.6rem));
+}
+
+.article-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.article-header .meta {
+  margin: 0.35rem 0 1.5rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.article-body p,
+.article-body li,
+.article-body blockquote,
+.article-body pre,
+.article-body code {
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.article-body h2,
+.article-body h3,
+.article-body h4 {
+  margin-top: 1.8rem;
+}
+
+.article-body img,
+.article-body iframe {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.article-body figcaption {
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.youtube-directory {
+  margin-top: 1.2rem;
+}
+
+.youtube-intro {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1.85rem;
+  font-weight: 700;
+  margin: 0 0 0.9rem;
+}
+
+.youtube-loading,
+.youtube-error,
+.youtube-empty {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82rem;
+  margin: 0.5rem 0;
+}
+
+.youtube-error {
+  color: var(--muted);
+}
+
+.youtube-table-wrap {
+  overflow-x: hidden;
+  margin-top: 0.85rem;
+}
+
+.youtube-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82rem;
+}
+
+.youtube-table th,
+.youtube-table td {
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.youtube-table th {
+  color: var(--muted);
+  font-weight: 500;
+  padding: 0.62rem 0.35rem 0.72rem;
+}
+
+.youtube-col-title {
+  width: 100%;
+}
+
+.youtube-col-date,
+.youtube-cell-date {
+  width: 7.4rem;
+  max-width: 7.4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.youtube-cell-title {
+  width: 100%;
+  padding: 0.85rem 0.35rem 0.2rem;
+}
+
+.youtube-title-link {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.youtube-channel-link {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: inherit;
+}
+
+.youtube-cell-date,
+.youtube-cell-channel {
+  padding: 0.85rem 0.18rem 0.2rem;
+  text-align: right;
+}
+
+.youtube-col-channel,
+.youtube-cell-channel {
+  width: 9rem;
+  white-space: nowrap;
+}
+
+.youtube-row-main td {
+  border-bottom: none;
+}
+
+.youtube-notes-cell {
+  padding: 0.1rem 0.35rem 1.05rem;
+  color: var(--muted);
+}
+
+.youtube-notes-label {
+  color: var(--fg);
+}
+
+.youtube-row-notes:last-child .youtube-notes-cell {
+  border-bottom: 1px solid var(--line);
+}
+
+.article-footer {
+  margin-top: 4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-family: 'IBM Plex Mono', monospace;
+}

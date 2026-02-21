@@ -1,25 +1,20 @@
-import js from "@eslint/js";
-import astro from "eslint-plugin-astro";
-import globals from "globals";
-import tseslint from "typescript-eslint";
+import js from '@eslint/js';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ["dist/**", ".astro/**", "node_modules/**"],
+    ignores: ['dist/**', '.next/**', '.astro/**', '.contentlayer/**', 'node_modules/**', 'contentlayer/generated/**']
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
-  ...astro.configs["flat/recommended"],
   {
-    files: ["src/**/*.{astro,ts,tsx,js,mjs,cjs}"],
+    files: ['**/*.{ts,tsx,js,mjs,cjs}'],
     languageOptions: {
-      globals: globals.browser,
-    },
-  },
-  {
-    files: ["api/**/*.{ts,js,mjs,cjs}", "scripts/**/*.{ts,js,mjs,cjs}", "astro.config.mjs"],
-    languageOptions: {
-      globals: globals.node,
-    },
-  },
+      globals: {
+        ...globals.browser,
+        ...globals.node
+      }
+    }
+  }
 );

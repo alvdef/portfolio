@@ -1,8 +1,11 @@
+'use client';
+
 import { useEffect, useRef, useState } from 'react';
-import { navigate } from 'astro:transitions/client';
-import { getPortfolioNavState } from '@/scripts/navigation-state';
-import { PEEK_MAX, PEEK_SNAP_HOLD_MS, PEEK_THRESHOLD } from '@/scripts/ui-constants';
-import { setNavState } from '@/scripts/nav-controller';
+import { usePathname } from 'next/navigation';
+import { getPortfolioNavState } from '@/features/navigation/navigation-state';
+import { PEEK_MAX, PEEK_SNAP_HOLD_MS, PEEK_THRESHOLD } from '@/features/ui/ui-constants';
+import { navigateTo, setNavState } from '@/features/navigation/nav-controller';
+import { getAdjacentArticleData, getArticleScrollRoot } from '@/features/navigation/dom-data';
 
 interface PeekData {
   direction: 'up' | 'down';
@@ -12,23 +15,18 @@ interface PeekData {
 }
 
 export default function PeekSnap() {
+  const pathname = usePathname();
   const [peek, setPeek] = useState<PeekData | null>(null);
   const accRef = useRef(0);
   const touchStartYRef = useRef(0);
 
   useEffect(() => {
-    const root = document.getElementById('article-scroll-root');
+    const root = getArticleScrollRoot();
     if (!root) return;
+    const rootEl = root;
 
     function getArticleData(direction: 'up' | 'down') {
-      const el = document.getElementById('article-scroll-root');
-      if (!el) return null;
-      const prefix = direction === 'up' ? 'prev' : 'next';
-      const url = el.dataset[`${prefix}Url`];
-      const title = el.dataset[`${prefix}Title`] || '';
-      const meta = el.dataset[`${prefix}Meta`] || '';
-      if (!url) return null;
-      return { url, title, meta };
+      return getAdjacentArticleData(direction);
     }
 
     function updatePeek(direction: 'up' | 'down', amount: number) {
@@ -48,12 +46,12 @@ export default function PeekSnap() {
       if (!data) return;
       const state = getPortfolioNavState();
       state.isNavigating = true;
-      setNavState(direction === 'up' ? 'up' : 'down', 'article');
+      setNavState(direction === 'up' ? 'up' : 'down', 'article', 'gesture');
       accRef.current = 0;
       setPeek({ direction, amount: PEEK_MAX, title: data.title, meta: data.meta });
       window.setTimeout(() => {
         setPeek(null);
-        navigate(data.url);
+        navigateTo(data.url);
       }, PEEK_SNAP_HOLD_MS);
     }
 
@@ -71,8 +69,8 @@ export default function PeekSnap() {
       if (options.updateTouchRef !== undefined) {
         touchStartYRef.current = options.updateTouchRef;
       }
-      const atTop = root.scrollTop <= 0;
-      const atBottom = root.scrollTop + root.clientHeight >= root.scrollHeight;
+      const atTop = rootEl.scrollTop <= 0;
+      const atBottom = rootEl.scrollTop + rootEl.clientHeight >= rootEl.scrollHeight;
       if (!(atTop || atBottom)) {
         resetPeekProgress();
         return;
@@ -99,8 +97,8 @@ export default function PeekSnap() {
     };
 
     const onScroll = () => {
-      const atTop = root.scrollTop <= 0;
-      const atBottom = root.scrollTop + root.clientHeight >= root.scrollHeight;
+      const atTop = rootEl.scrollTop <= 0;
+      const atBottom = rootEl.scrollTop + rootEl.clientHeight >= rootEl.scrollHeight;
       if (!atTop && !atBottom && accRef.current > 0) {
         resetPeekProgress();
       }
@@ -122,28 +120,26 @@ export default function PeekSnap() {
       }
     };
 
-    const onAfterSwap = () => {
-      getPortfolioNavState().isNavigating = false;
-      accRef.current = 0;
-      setPeek(null);
-    };
-
-    root.addEventListener('wheel', onWheel, { passive: true });
-    root.addEventListener('scroll', onScroll, { passive: true });
-    root.addEventListener('touchstart', onTouchStart, { passive: true });
-    root.addEventListener('touchmove', onTouchMove, { passive: true });
-    root.addEventListener('touchend', onTouchEnd, { passive: true });
-    document.addEventListener('astro:after-swap', onAfterSwap);
+    rootEl.addEventListener('wheel', onWheel, { passive: true });
+    rootEl.addEventListener('scroll', onScroll, { passive: true });
+    rootEl.addEventListener('touchstart', onTouchStart, { passive: true });
+    rootEl.addEventListener('touchmove', onTouchMove, { passive: true });
+    rootEl.addEventListener('touchend', onTouchEnd, { passive: true });
 
     return () => {
-      root.removeEventListener('wheel', onWheel);
-      root.removeEventListener('scroll', onScroll);
-      root.removeEventListener('touchstart', onTouchStart);
-      root.removeEventListener('touchmove', onTouchMove);
-      root.removeEventListener('touchend', onTouchEnd);
-      document.removeEventListener('astro:after-swap', onAfterSwap);
+      rootEl.removeEventListener('wheel', onWheel);
+      rootEl.removeEventListener('scroll', onScroll);
+      rootEl.removeEventListener('touchstart', onTouchStart);
+      rootEl.removeEventListener('touchmove', onTouchMove);
+      rootEl.removeEventListener('touchend', onTouchEnd);
     };
-  }, []);
+  }, [pathname]);
+
+  useEffect(() => {
+    getPortfolioNavState().isNavigating = false;
+    accRef.current = 0;
+    setPeek(null);
+  }, [pathname]);
 
   if (!peek || peek.amount === 0) return null;
 
@@ -155,7 +151,7 @@ export default function PeekSnap() {
     [isTop ? 'top' : 'bottom']: '0',
     height: `${peek.amount}px`,
     overflow: 'hidden',
-    transition: peek.amount === 0 ? 'height 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
+    transition: peek.amount === 0 ? 'height var(--ui-duration-fast) var(--ui-ease)' : 'none',
     zIndex: 30,
   };
 

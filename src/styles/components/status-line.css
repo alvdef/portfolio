@@ -1,0 +1,32 @@
+/* ── Status line (fixed bottom bar) ── */
+
+.status-line {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--status-height);
+  padding: 0 0.75rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  z-index: 20;
+  view-transition-name: status-line;
+}
+
+.status-keys {
+  opacity: 0.6;
+}
+
+.status-breadcrumb {
+  margin-left: var(--header-clock-offset);
+}
+
+.status-credit {
+  margin-left: auto;
+}

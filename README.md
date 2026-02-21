@@ -9,7 +9,7 @@ Astro 5, React 19 (islands), Tailwind CSS 4, TypeScript.
 ## Content pipeline
 
 ```
-vault/           -->  npm run sync:cowntent  -->  src/content/    -->  astro build  -->  dist/
+vault/           -->  npm run sync:content  -->  src/content/    -->  astro build  -->  dist/
 (obsidian)            rewrites images,           (generated md)       static HTML
                       injects frontmatter,
                       generates sections.ts
@@ -54,7 +54,43 @@ npm run dev              # syncs vault, starts dev server
 
 ## Environment
 
-Spotify widget requires `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN`. Without them, it shows "Silence".
+Spotify widget uses your account only. Visitors never authenticate with Spotify.
+
+Required:
+- `SPOTIFY_CLIENT_ID`
+- `SPOTIFY_CLIENT_SECRET`
+- `SPOTIFY_REDIRECT_URI`
+
+Optional until setup is complete:
+- `SPOTIFY_REFRESH_TOKEN`
+
+Without a refresh token, the widget fallback stays `Silence`.
+
+### One-time refresh token setup
+
+Production (recommended):
+1. In Spotify Developer Dashboard, add your production redirect URI:
+`https://your-domain.vercel.app/api/spotify-callback`
+2. Set `.env` / Vercel project env:
+`SPOTIFY_REDIRECT_URI=https://your-domain.vercel.app/api/spotify-callback`
+3. Deploy.
+4. Open: `https://your-domain.vercel.app/api/spotify-authorize`
+5. Log in and approve access.
+6. The callback page prints:
+`SPOTIFY_REFRESH_TOKEN=...`
+7. Save that value in Vercel env vars and local `.env`.
+
+Local development (allowed by Spotify for localhost):
+1. Add local redirect URI too:
+`http://localhost:4321/api/spotify-callback`
+2. Set `.env` for local runs:
+`SPOTIFY_REDIRECT_URI=http://localhost:4321/api/spotify-callback`
+3. Start the app: `npm run dev`
+4. Open: `http://localhost:4321/api/spotify-authorize`
+5. Log in and approve access.
+6. The callback page prints:
+`SPOTIFY_REFRESH_TOKEN=...`
+7. Put that value in `.env`, restart dev server.
 
 ## Design constraints
 

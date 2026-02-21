@@ -1,7 +1,0 @@
-{
-  "functions": {
-    "api/spotify-now-playing.ts": {
-      "runtime": "nodejs20.x"
-    }
-  }
-}

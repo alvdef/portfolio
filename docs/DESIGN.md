@@ -30,3 +30,8 @@
 - Theme changes are smoothly animated, desktop sidebar collapse state is persistent.
 - Frontend behavior logic is modularized into dedicated navigation, sidebar, and theme controllers with shared UI constants.
 - Sections are always odd count by design convention.
+- Spotify now-playing remains server-side and tied to the site owner's account via personal OAuth refresh token; visitor sessions never drive playback data.
+- Added one-time Spotify OAuth helper endpoints (`/api/spotify-authorize`, `/api/spotify-callback`) to generate and capture `SPOTIFY_REFRESH_TOKEN`.
+- Missing Spotify refresh token is treated as a valid fallback state and keeps widget output as `Silence`.
+- Removed explicit Vercel function runtime from `vercel.json`; deployment now relies on Vercel's default Node.js runtime selection for API routes.
+- Spotify OAuth callback strategy uses HTTPS Vercel URL in production and `http://localhost` only for local development token bootstrap.

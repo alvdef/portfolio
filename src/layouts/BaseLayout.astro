@@ -39,20 +39,21 @@ const { title, currentSection, sections, sectionGroups, currentSlug, prevUrl, ne
     <div class="app-grid">
       <HeaderCarousel sections={sections} currentSection={currentSection} />
 
-      <button id="index-toggle" class="index-toggle" type="button" aria-controls="sidebar-index" aria-expanded="false">≡</button>
       <Sidebar groups={sectionGroups} currentSlug={currentSlug} />
 
       <main class="content-pane" data-prev-url={prevUrl ?? ''} data-next-url={nextUrl ?? ''}>
         <slot />
       </main>
       <PeekSnap client:load />
-      {articleIndex && articleTotal && (
-        <div class="status-line">
-          <span>{currentSection}/{currentSlug} [{articleIndex}/{articleTotal}]</span>
-          <span class="status-keys">h/l sections · j/k articles</span>
-        </div>
-      )}
     </div>
+
+    {articleIndex && articleTotal && (
+      <div class="status-line">
+        <span>{currentSection}/{currentSlug} [{articleIndex}/{articleTotal}]</span>
+        <span class="status-keys">h/l sections · j/k articles</span>
+        <span class="status-credit">&copy; 2026</span>
+      </div>
+    )}
 
     <script>
       import { navigate } from 'astro:transitions/client';
@@ -68,6 +69,11 @@ const { title, currentSection, sections, sectionGroups, currentSlug, prevUrl, ne
         sidebar.dataset.open = open ? 'true' : 'false';
       }
 
+      // Open sidebar by default on desktop
+      if (window.innerWidth > 960) {
+        setDrawer(true);
+      }
+
       toggleButton?.addEventListener('click', () => {
         const expanded = toggleButton.getAttribute('aria-expanded') === 'true';
         setDrawer(!expanded);
@@ -76,7 +82,10 @@ const { title, currentSection, sections, sectionGroups, currentSlug, prevUrl, ne
       sidebar?.addEventListener('click', (event) => {
         const target = event.target;
         if (target instanceof HTMLAnchorElement) {
-          setDrawer(false);
+          // Only auto-close on mobile
+          if (window.innerWidth <= 960) {
+            setDrawer(false);
+          }
         }
       });
 
@@ -130,7 +139,7 @@ const { title, currentSection, sections, sectionGroups, currentSlug, prevUrl, ne
         const nextUrl = root?.dataset.nextUrl;
 
         if (event.key === 'h') {
-          const left = document.querySelector('a[data-nav-dir="left"]');
+          const left = document.querySelector('a[data-nav-nearest="prev"]');
           if (left instanceof HTMLAnchorElement) {
             event.preventDefault();
             window.__portfolioNavState.isNavigating = true;
@@ -140,7 +149,7 @@ const { title, currentSection, sections, sectionGroups, currentSlug, prevUrl, ne
         }
 
         if (event.key === 'l') {
-          const right = document.querySelector('a[data-nav-dir="right"]');
+          const right = document.querySelector('a[data-nav-nearest="next"]');
           if (right instanceof HTMLAnchorElement) {
             event.preventDefault();
             window.__portfolioNavState.isNavigating = true;
@@ -190,6 +199,10 @@ const { title, currentSection, sections, sectionGroups, currentSlug, prevUrl, ne
         window.__portfolioNavState.isNavigating = false;
         applyStoredTheme();
         syncThemeIcon();
+        // Re-open sidebar on desktop after navigation
+        if (window.innerWidth > 960) {
+          setDrawer(true);
+        }
       });
 
       applyStoredTheme();

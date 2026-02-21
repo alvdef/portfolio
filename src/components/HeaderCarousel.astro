@@ -22,7 +22,8 @@ for (let i = -half; i <= half; i++) {
 ---
 
 <header class="top-header">
-  <div class="widget-left clock-cluster">
+  <div class="widget-left">
+    <button id="index-toggle" class="index-toggle" type="button" aria-controls="sidebar-index" aria-expanded="false">≡</button>
     <ClockWidget client:load />
   </div>
   <nav class="carousel-nav" aria-label="Section navigation">
@@ -31,8 +32,14 @@ for (let i = -half; i <= half; i++) {
         return <span class="carousel-item active">{name}</span>;
       }
       const dir = offset < 0 ? 'left' : 'right';
+      const nearest = offset === -1 ? 'prev' : offset === 1 ? 'next' : undefined;
       return (
-        <a href={`/${name}`} data-nav-dir={dir} class="carousel-item dimmed">
+        <a
+          href={`/${name}`}
+          data-nav-dir={dir}
+          data-nav-nearest={nearest}
+          class="carousel-item dimmed"
+        >
           {name}
         </a>
       );

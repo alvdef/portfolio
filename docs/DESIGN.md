@@ -36,3 +36,6 @@
 - Removed explicit Vercel function runtime from `vercel.json`; deployment now relies on Vercel's default Node.js runtime selection for API routes.
 - Spotify OAuth callback strategy uses HTTPS Vercel URL in production and `http://localhost` only for local development token bootstrap.
 - Added repo-level `.gitignore` override for `src/lib/**` so shared/global ignore rules do not exclude app source modules from commits.
+- Disabled Spotify track marquee animation; long now-playing text is clipped with ellipsis instead of scrolling.
+- Hid the now-playing widget on mobile viewports (`max-width: 960px`) to keep header controls concise.
+- Aligned the desktop status breadcrumb start with the header clock using a shared horizontal offset.

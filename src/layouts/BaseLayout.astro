@@ -50,7 +50,7 @@ const { title, currentSection, sections, sectionLinks = {}, sectionGroups, curre
 
     {articleIndex && articleTotal && (
       <div class="status-line">
-        <span>{currentSection}/{currentSlug} [{articleIndex}/{articleTotal}]</span>
+        <span class="status-breadcrumb">{currentSection}/{currentSlug} [{articleIndex}/{articleTotal}]</span>
         <span class="status-keys">h/l sections · j/k articles</span>
         <span class="status-credit">Álvaro de Francisco &copy; 2026</span>
       </div>

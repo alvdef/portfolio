@@ -39,8 +39,6 @@ export default function SpotifyNowPlaying() {
   }, [state]);
 
   return (
-    <div className="mono-widget marquee-shell" aria-label="Spotify now playing">
-      <span className={text.length > 26 ? 'marquee-text' : ''}>{text}</span>
-    </div>
+    <div className="mono-widget spotify-now-playing" aria-label="Spotify now playing">{text}</div>
   );
 }

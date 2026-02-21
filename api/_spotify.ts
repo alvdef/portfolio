@@ -9,9 +9,17 @@ type SpotifyEnv = {
   redirectUri?: string;
 };
 
+type RuntimeEnv = Record<string, string | undefined>;
+
+function readEnv(): RuntimeEnv {
+  const runtime = globalThis as { process?: { env?: RuntimeEnv } };
+  return runtime.process?.env ?? {};
+}
+
 export function getSpotifyEnv(): SpotifyEnv | null {
-  const clientId = process.env.SPOTIFY_CLIENT_ID;
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+  const env = readEnv();
+  const clientId = env.SPOTIFY_CLIENT_ID;
+  const clientSecret = env.SPOTIFY_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
     return null;
@@ -20,13 +28,9 @@ export function getSpotifyEnv(): SpotifyEnv | null {
   return {
     clientId,
     clientSecret,
-    refreshToken: process.env.SPOTIFY_REFRESH_TOKEN,
-    redirectUri: process.env.SPOTIFY_REDIRECT_URI
+    refreshToken: env.SPOTIFY_REFRESH_TOKEN,
+    redirectUri: env.SPOTIFY_REDIRECT_URI
   };
-}
-
-function basicAuth(clientId: string, clientSecret: string) {
-  return Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 }
 
 export function buildAuthorizeUrl(clientId: string, redirectUri: string) {
@@ -49,10 +53,11 @@ export async function exchangeCodeForRefreshToken(params: {
   const response = await fetch(TOKEN_ENDPOINT, {
     method: 'POST',
     headers: {
-      Authorization: `Basic ${basicAuth(params.clientId, params.clientSecret)}`,
       'Content-Type': 'application/x-www-form-urlencoded'
     },
     body: new URLSearchParams({
+      client_id: params.clientId,
+      client_secret: params.clientSecret,
       grant_type: 'authorization_code',
       code: params.code,
       redirect_uri: params.redirectUri
@@ -78,10 +83,11 @@ export async function refreshAccessToken(params: {
   const response = await fetch(TOKEN_ENDPOINT, {
     method: 'POST',
     headers: {
-      Authorization: `Basic ${basicAuth(params.clientId, params.clientSecret)}`,
       'Content-Type': 'application/x-www-form-urlencoded'
     },
     body: new URLSearchParams({
+      client_id: params.clientId,
+      client_secret: params.clientSecret,
       grant_type: 'refresh_token',
       refresh_token: params.refreshToken
     })

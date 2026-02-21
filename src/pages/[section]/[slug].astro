@@ -36,7 +36,16 @@ const nextDoc = index < sectionDocs.length - 1 ? sectionDocs[index + 1] : null;
   prevUrl={prevDoc ? `/${prevDoc.data.section}/${prevDoc.data.slug}` : null}
   nextUrl={nextDoc ? `/${nextDoc.data.section}/${nextDoc.data.slug}` : null}
 >
-  <article id="article-scroll-root" class="article-body" data-next-url={nextDoc ? `/${nextDoc.data.section}/${nextDoc.data.slug}` : ''} data-prev-url={prevDoc ? `/${prevDoc.data.section}/${prevDoc.data.slug}` : ''}>
+  <article
+    id="article-scroll-root"
+    class="article-body"
+    data-next-url={nextDoc ? `/${nextDoc.data.section}/${nextDoc.data.slug}` : ''}
+    data-prev-url={prevDoc ? `/${prevDoc.data.section}/${prevDoc.data.slug}` : ''}
+    data-next-title={nextDoc?.data.title ?? ''}
+    data-next-meta={nextDoc ? `${nextDoc.data.group} / ${new Date(nextDoc.data.date).toISOString().slice(0, 10)}` : ''}
+    data-prev-title={prevDoc?.data.title ?? ''}
+    data-prev-meta={prevDoc ? `${prevDoc.data.group} / ${new Date(prevDoc.data.date).toISOString().slice(0, 10)}` : ''}
+  >
     <header class="article-header">
       <h1>{doc.data.title}</h1>
       <p class="meta">{doc.data.group} / {new Date(doc.data.date).toISOString().slice(0, 10)}</p>

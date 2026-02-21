@@ -2,7 +2,7 @@
 import { ClientRouter } from 'astro:transitions';
 import HeaderCarousel from '@/components/HeaderCarousel.astro';
 import Sidebar from '@/components/Sidebar.astro';
-import ScrollResistance from '@/components/ScrollResistance';
+import PeekSnap from '@/components/PeekSnap';
 import '@/styles/global.css';
 
 interface Props {
@@ -43,7 +43,7 @@ const { title, currentSection, sections, sectionGroups, currentSlug, prevUrl, ne
       <main class="content-pane" data-prev-url={prevUrl ?? ''} data-next-url={nextUrl ?? ''}>
         <slot />
       </main>
-      <ScrollResistance client:load />
+      <PeekSnap client:load />
     </div>
 
     <script>

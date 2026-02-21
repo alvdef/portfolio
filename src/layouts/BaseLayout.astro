@@ -13,9 +13,11 @@ interface Props {
   currentSlug: string;
   prevUrl: string | null;
   nextUrl: string | null;
+  articleIndex?: number;
+  articleTotal?: number;
 }
 
-const { title, currentSection, sections, sectionGroups, currentSlug, prevUrl, nextUrl } = Astro.props;
+const { title, currentSection, sections, sectionGroups, currentSlug, prevUrl, nextUrl, articleIndex, articleTotal } = Astro.props;
 ---
 
 <!doctype html>
@@ -44,6 +46,12 @@ const { title, currentSection, sections, sectionGroups, currentSlug, prevUrl, ne
         <slot />
       </main>
       <PeekSnap client:load />
+      {articleIndex && articleTotal && (
+        <div class="status-line">
+          <span>{currentSection}/{currentSlug} [{articleIndex}/{articleTotal}]</span>
+          <span class="status-keys">h/l sections · j/k articles</span>
+        </div>
+      )}
     </div>
 
     <script>

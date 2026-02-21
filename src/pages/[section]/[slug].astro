@@ -35,6 +35,8 @@ const nextDoc = index < sectionDocs.length - 1 ? sectionDocs[index + 1] : null;
   currentSlug={doc.data.slug}
   prevUrl={prevDoc ? `/${prevDoc.data.section}/${prevDoc.data.slug}` : null}
   nextUrl={nextDoc ? `/${nextDoc.data.section}/${nextDoc.data.slug}` : null}
+  articleIndex={index + 1}
+  articleTotal={sectionDocs.length}
 >
   <article
     id="article-scroll-root"
@@ -51,5 +53,8 @@ const nextDoc = index < sectionDocs.length - 1 ? sectionDocs[index + 1] : null;
       <p class="meta">{doc.data.group} / {new Date(doc.data.date).toISOString().slice(0, 10)}</p>
     </header>
     <Content />
+    <footer class="article-footer">
+      <span>&copy; 2026</span>
+    </footer>
   </article>
 </BaseLayout>

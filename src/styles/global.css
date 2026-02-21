@@ -330,11 +330,32 @@ a:hover {
 }
 
 .article-footer {
-  margin-top: 2rem;
+  margin-top: 4rem;
   padding-top: 1rem;
   border-top: 1px solid var(--line);
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.status-line {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.3rem 0.75rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
   display: flex;
-  justify-content: space-between;
+  gap: 1.5rem;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.status-keys {
+  opacity: 0.6;
 }
 
 .peek-strip {
@@ -468,5 +489,9 @@ a:hover {
 
   .carousel-item.active {
     font-size: 0.95rem;
+  }
+
+  .status-line {
+    display: none;
   }
 }

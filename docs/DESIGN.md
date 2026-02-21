@@ -35,3 +35,4 @@
 - Missing Spotify refresh token is treated as a valid fallback state and keeps widget output as `Silence`.
 - Removed explicit Vercel function runtime from `vercel.json`; deployment now relies on Vercel's default Node.js runtime selection for API routes.
 - Spotify OAuth callback strategy uses HTTPS Vercel URL in production and `http://localhost` only for local development token bootstrap.
+- Added repo-level `.gitignore` override for `src/lib/**` so shared/global ignore rules do not exclude app source modules from commits.

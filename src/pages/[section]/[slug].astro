@@ -42,9 +42,5 @@ const nextDoc = index < sectionDocs.length - 1 ? sectionDocs[index + 1] : null;
       <p class="meta">{doc.data.group} / {new Date(doc.data.date).toISOString().slice(0, 10)}</p>
     </header>
     <Content />
-    <footer class="article-footer">
-      {prevDoc ? <a href={`/${prevDoc.data.section}/${prevDoc.data.slug}`}>Prev</a> : <span />}
-      {nextDoc ? <a href={`/${nextDoc.data.section}/${nextDoc.data.slug}`}>Next</a> : <span />}
-    </footer>
   </article>
 </BaseLayout>

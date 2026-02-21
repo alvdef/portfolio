@@ -263,14 +263,16 @@ a:hover {
   height: calc(100vh - 3rem);
   overflow-y: auto;
   touch-action: pan-y;
-  padding: 1rem 1.25rem 2rem;
+  padding: 15vh 1.25rem 4rem;
   max-width: 76ch;
+  margin: 0 auto;
 }
 
 .article-header h1 {
   margin: 0;
-  font-size: 1.3rem;
-  line-height: 1.2;
+  font-size: 2rem;
+  line-height: 1.15;
+  font-weight: 700;
 }
 
 .article-header .meta {
@@ -423,7 +425,7 @@ a:hover {
 
   .article-body {
     max-width: 100%;
-    padding: 1rem 0.9rem 2rem;
+    padding: 8vh 0.9rem 3rem;
   }
 
   .widget-left,

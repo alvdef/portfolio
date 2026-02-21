@@ -9,7 +9,7 @@ Astro 5, React 19 (islands), Tailwind CSS 4, TypeScript.
 ## Content pipeline
 
 ```
-vault/           -->  npm run sync:content  -->  src/content/    -->  astro build  -->  dist/
+vault/           -->  npm run sync:cowntent  -->  src/content/    -->  astro build  -->  dist/
 (obsidian)            rewrites images,           (generated md)       static HTML
                       injects frontmatter,
                       generates sections.ts

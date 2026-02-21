@@ -15,3 +15,6 @@ This portfolio is markdown-first.
 - GitHub: [github.com/example](https://github.com/example)
 - LinkedIn: [linkedin.com/in/example](https://linkedin.com/in/example)
 - Email: [hello@example.com](mailto:hello@example.com)
+
+![Global](/images/.assets/logo.svg)
+![FromRelative](/images/.assets/logo.svg)

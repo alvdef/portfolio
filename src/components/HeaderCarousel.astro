@@ -5,9 +5,10 @@ import SpotifyNowPlaying from '@/components/SpotifyNowPlaying';
 interface Props {
   sections: string[];
   currentSection: string;
+  sectionLinks?: Record<string, string>;
 }
 
-const { sections, currentSection } = Astro.props;
+const { sections, currentSection, sectionLinks = {} } = Astro.props;
 const activeIndex = sections.indexOf(currentSection);
 
 // Build circular order: place active in center, wrap others around it
@@ -27,23 +28,26 @@ for (let i = -half; i <= half; i++) {
     <ClockWidget client:load />
   </div>
   <nav class="carousel-nav" aria-label="Section navigation">
-    {ordered.map(({ name, offset }) => {
-      if (offset === 0) {
-        return <span class="carousel-item active">{name}</span>;
-      }
-      const dir = offset < 0 ? 'left' : 'right';
-      const nearest = offset === -1 ? 'prev' : offset === 1 ? 'next' : undefined;
-      return (
-        <a
-          href={`/${name}`}
-          data-nav-dir={dir}
-          data-nav-nearest={nearest}
-          class="carousel-item dimmed"
-        >
-          {name}
-        </a>
-      );
-    })}
+    <div class="carousel-track">
+      {ordered.map(({ name, offset }) => {
+        if (offset === 0) {
+          return <span class="carousel-item active">{name}</span>;
+        }
+        const dir = offset < 0 ? 'left' : 'right';
+        const nearest = offset === -1 ? 'prev' : offset === 1 ? 'next' : undefined;
+        return (
+          <a
+            href={sectionLinks[name] ?? `/${name}`}
+            data-nav-dir={dir}
+            data-nav-axis="section"
+            data-nav-nearest={nearest}
+            class="carousel-item dimmed"
+          >
+            {name}
+          </a>
+        );
+      })}
+    </div>
   </nav>
   <div class="widget-right">
     <SpotifyNowPlaying client:load />

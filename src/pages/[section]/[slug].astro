@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getPublishedDocs, groupDocsByGroup } from '@/lib/content';
+import { getSectionLandingLinks } from '@/scripts/section-links';
 import { SECTIONS } from '@/generated/sections';
 
 export async function getStaticPaths() {
@@ -21,6 +22,7 @@ const { Content } = await render(doc);
 const docs = await getPublishedDocs();
 const sectionDocs = docs.filter((d) => d.data.section === doc.data.section);
 const sectionGroups = groupDocsByGroup(sectionDocs);
+const sectionLinks = getSectionLandingLinks(docs, [...SECTIONS]);
 
 const index = sectionDocs.findIndex((d) => d.id === doc.id);
 const prevDoc = index > 0 ? sectionDocs[index - 1] : null;
@@ -31,6 +33,7 @@ const nextDoc = index < sectionDocs.length - 1 ? sectionDocs[index + 1] : null;
   title={doc.data.title}
   currentSection={doc.data.section}
   sections={[...SECTIONS]}
+  sectionLinks={sectionLinks}
   sectionGroups={sectionGroups}
   currentSlug={doc.data.slug}
   prevUrl={prevDoc ? `/${prevDoc.data.section}/${prevDoc.data.slug}` : null}

@@ -4,9 +4,13 @@ import crypto from 'node:crypto';
 
 const ROOT = process.cwd();
 const VAULT_DIR = process.env.CONTENT_VAULT_DIR || path.join(ROOT, 'vault');
+const CONFIG_FILE = path.join(VAULT_DIR, '.config.yaml');
+const GLOBAL_ASSETS_DIR = path.join(VAULT_DIR, '.assets');
+
 const CONTENT_DIR = path.join(ROOT, 'src/content');
 const GENERATED_DIR = path.join(ROOT, 'src/generated');
 const GENERATED_SECTIONS = path.join(GENERATED_DIR, 'sections.ts');
+const GENERATED_GROUPS = path.join(GENERATED_DIR, 'groups.ts');
 const PUBLIC_IMAGES = path.join(ROOT, 'public/images');
 const MARKER_FILE = path.join(GENERATED_DIR, 'content-sync.json');
 
@@ -18,6 +22,11 @@ function isMarkdown(filePath) {
 
 function isImage(filePath) {
   return IMAGE_EXTENSIONS.has(path.extname(filePath).toLowerCase());
+}
+
+function isYaml(filePath) {
+  const ext = path.extname(filePath).toLowerCase();
+  return ext === '.yaml' || ext === '.yml';
 }
 
 function listFilesRecursively(directory) {
@@ -51,9 +60,7 @@ function parseFrontmatter(input) {
 
   for (const line of block.split('\n')) {
     const separator = line.indexOf(':');
-    if (separator === -1) {
-      continue;
-    }
+    if (separator === -1) continue;
     const key = line.slice(0, separator).trim();
     let value = line.slice(separator + 1).trim();
     if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
@@ -90,21 +97,66 @@ function toSlug(name) {
     .replace(/^-+|-+$/g, '');
 }
 
+function parseConfigYaml(input) {
+  const lines = input.split('\n');
+  const groups = [];
+  let inGroups = false;
+
+  for (const rawLine of lines) {
+    const line = rawLine.replace(/\t/g, '  ');
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+
+    if (/^groups\s*:\s*$/.test(trimmed)) {
+      inGroups = true;
+      continue;
+    }
+
+    if (inGroups) {
+      const match = line.match(/^\s*-\s*(.+?)\s*$/);
+      if (match) {
+        const value = match[1].replace(/^['"]|['"]$/g, '').trim();
+        if (value) groups.push(value);
+        continue;
+      }
+      if (/^[A-Za-z0-9_-]+\s*:/.test(trimmed)) {
+        inGroups = false;
+      }
+    }
+  }
+
+  return { groups };
+}
+
 function rewriteImages(markdown, sectionName) {
   let output = markdown;
 
   output = output.replace(/!\[\[([^\]]+)\]\]/g, (_, raw) => {
-    const cleaned = raw.split('|')[0].trim();
+    const cleaned = raw.split('|')[0].trim().replaceAll('\\', '/');
+    const altBase = path.basename(cleaned);
+    const alt = path.basename(altBase, path.extname(altBase));
+
+    if (cleaned.includes('.assets/')) {
+      const subPath = cleaned.slice(cleaned.indexOf('.assets/')).replace(/^\.assets\//, '');
+      return `![${alt}](/images/.assets/${subPath})`;
+    }
+
     const fileName = path.basename(cleaned);
-    const alt = path.basename(fileName, path.extname(fileName));
     return `![${alt}](/images/${sectionName}/${fileName})`;
   });
 
   output = output.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (full, alt, imagePath) => {
-    if (/^https?:\/\//i.test(imagePath) || imagePath.startsWith('/images/')) {
+    const cleaned = imagePath.replace(/"/g, '').trim().replaceAll('\\', '/');
+    if (/^https?:\/\//i.test(cleaned) || cleaned.startsWith('/images/')) {
       return full;
     }
-    const fileName = path.basename(imagePath.replace(/"/g, '').trim());
+
+    if (cleaned.includes('.assets/')) {
+      const subPath = cleaned.slice(cleaned.indexOf('.assets/')).replace(/^\.assets\//, '');
+      return `![${alt}](/images/.assets/${subPath})`;
+    }
+
+    const fileName = path.basename(cleaned);
     return `![${alt}](/images/${sectionName}/${fileName})`;
   });
 
@@ -134,20 +186,31 @@ async function fetchYoutubeVideos(apiKey, playlistId) {
   }
 
   const json = await response.json();
-  return (json.items ?? []).map((item) => {
-    const videoId = item?.contentDetails?.videoId;
-    const title = item?.snippet?.title;
-    const publishedAt = item?.snippet?.publishedAt;
-    return { videoId, title, publishedAt };
-  }).filter((item) => item.videoId && item.title && item.publishedAt);
+  return (json.items ?? [])
+    .map((item) => {
+      const videoId = item?.contentDetails?.videoId;
+      const title = item?.snippet?.title;
+      const publishedAt = item?.snippet?.publishedAt;
+      return { videoId, title, publishedAt };
+    })
+    .filter((item) => item.videoId && item.title && item.publishedAt);
 }
 
 if (!existsSync(VAULT_DIR)) {
   throw new Error(`Vault directory not found: ${VAULT_DIR}. Set CONTENT_VAULT_DIR or create ./vault.`);
 }
+if (!existsSync(CONFIG_FILE)) {
+  throw new Error(`Vault config missing: ${CONFIG_FILE}. Define groups in vault/.config.yaml.`);
+}
+
+const configRaw = readFileSync(CONFIG_FILE, 'utf8');
+const vaultConfig = parseConfigYaml(configRaw);
+if (vaultConfig.groups.length === 0) {
+  throw new Error('vault/.config.yaml must define a non-empty groups list.');
+}
 
 const sections = readdirSync(VAULT_DIR, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory())
+  .filter((entry) => entry.isDirectory() && !entry.name.startsWith('.'))
   .map((entry) => entry.name)
   .sort((a, b) => a.localeCompare(b));
 
@@ -160,6 +223,10 @@ rmSync(PUBLIC_IMAGES, { recursive: true, force: true });
 mkdirSync(CONTENT_DIR, { recursive: true });
 mkdirSync(PUBLIC_IMAGES, { recursive: true });
 mkdirSync(GENERATED_DIR, { recursive: true });
+
+if (existsSync(GLOBAL_ASSETS_DIR)) {
+  cpSync(GLOBAL_ASSETS_DIR, path.join(PUBLIC_IMAGES, '.assets'), { recursive: true });
+}
 
 for (const section of sections) {
   const sourceSection = path.join(VAULT_DIR, section);
@@ -183,7 +250,7 @@ for (const section of sections) {
         slug: frontmatter.slug || toSlug(path.basename(sourcePath)),
         title: frontmatter.title || path.basename(sourcePath, '.md'),
         status: frontmatter.status || 'published',
-        group: frontmatter.group || 'PERSONAL',
+        group: frontmatter.group || vaultConfig.groups[0],
         order: frontmatter.order ? Number(frontmatter.order) : 999,
         date: frontmatter.date || new Date().toISOString().slice(0, 10)
       };
@@ -205,10 +272,15 @@ const youtubePlaylists = (process.env.YOUTUBE_PLAYLIST_IDS ?? '')
   .split(',')
   .map((entry) => entry.trim())
   .filter(Boolean);
-const youtubeSection = process.env.YOUTUBE_SECTION && sections.includes(process.env.YOUTUBE_SECTION)
-  ? process.env.YOUTUBE_SECTION
-  : (sections.includes('msc') ? 'msc' : sections[0]);
-const youtubeGroup = process.env.YOUTUBE_GROUP || 'FREE TIME';
+const youtubeSection =
+  process.env.YOUTUBE_SECTION && sections.includes(process.env.YOUTUBE_SECTION)
+    ? process.env.YOUTUBE_SECTION
+    : sections.includes('msc')
+      ? 'msc'
+      : sections[0];
+const youtubeGroup = process.env.YOUTUBE_GROUP && vaultConfig.groups.includes(process.env.YOUTUBE_GROUP)
+  ? process.env.YOUTUBE_GROUP
+  : vaultConfig.groups[0];
 
 if (youtubeApiKey && youtubePlaylists.length > 0) {
   const targetSection = path.join(CONTENT_DIR, youtubeSection);
@@ -235,11 +307,11 @@ if (youtubeApiKey && youtubePlaylists.length > 0) {
 <summary>Reveal video</summary>
 
 <iframe
-  src=\"https://www.youtube.com/embed/${video.videoId}?rel=0&controls=1\"
-  title=\"${video.title.replaceAll('\"', '&quot;')}\"
-  loading=\"lazy\"
-  allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\"
-  referrerpolicy=\"strict-origin-when-cross-origin\"
+  src="https://www.youtube.com/embed/${video.videoId}?rel=0&controls=1"
+  title="${video.title.replaceAll('"', '&quot;')}"
+  loading="lazy"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+  referrerpolicy="strict-origin-when-cross-origin"
   allowfullscreen
 ></iframe>
 
@@ -251,9 +323,11 @@ if (youtubeApiKey && youtubePlaylists.length > 0) {
 }
 
 const sectionsFile = `export const SECTIONS = ${JSON.stringify(sections)} as const;\n`;
+const groupsFile = `export const GROUPS = ${JSON.stringify(vaultConfig.groups)} as const;\n`;
 writeFileSync(GENERATED_SECTIONS, sectionsFile);
+writeFileSync(GENERATED_GROUPS, groupsFile);
 
-const sourceFiles = listFilesRecursively(VAULT_DIR).filter((p) => isMarkdown(p) || isImage(p));
+const sourceFiles = listFilesRecursively(VAULT_DIR).filter((p) => isMarkdown(p) || isImage(p) || isYaml(p));
 const sourceHash = getSourceHash(sourceFiles);
 writeFileSync(
   MARKER_FILE,
@@ -261,6 +335,7 @@ writeFileSync(
     {
       sourceHash,
       sections,
+      groups: vaultConfig.groups,
       generatedAt: new Date().toISOString()
     },
     null,
@@ -270,3 +345,4 @@ writeFileSync(
 
 console.log(`Synced content from ${VAULT_DIR}`);
 console.log(`Sections: ${sections.join(', ')}`);
+console.log(`Groups: ${vaultConfig.groups.join(', ')}`);

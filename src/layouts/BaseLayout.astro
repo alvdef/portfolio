@@ -9,6 +9,7 @@ interface Props {
   title: string;
   currentSection: string;
   sections: string[];
+  sectionLinks?: Record<string, string>;
   sectionGroups: Array<{ group: string; items: Array<{ data: { title: string; slug: string; section: string } }> }>;
   currentSlug: string;
   prevUrl: string | null;
@@ -17,11 +18,11 @@ interface Props {
   articleTotal?: number;
 }
 
-const { title, currentSection, sections, sectionGroups, currentSlug, prevUrl, nextUrl, articleIndex, articleTotal } = Astro.props;
+const { title, currentSection, sections, sectionLinks = {}, sectionGroups, currentSlug, prevUrl, nextUrl, articleIndex, articleTotal } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en" data-nav-dir="none">
+<html lang="en" data-nav-dir="none" data-nav-axis="none">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -37,7 +38,7 @@ const { title, currentSection, sections, sectionGroups, currentSlug, prevUrl, ne
   </head>
   <body>
     <div class="app-grid">
-      <HeaderCarousel sections={sections} currentSection={currentSection} />
+      <HeaderCarousel sections={sections} sectionLinks={sectionLinks} currentSection={currentSection} />
 
       <Sidebar groups={sectionGroups} currentSlug={currentSlug} />
 
@@ -51,162 +52,28 @@ const { title, currentSection, sections, sectionGroups, currentSlug, prevUrl, ne
       <div class="status-line">
         <span>{currentSection}/{currentSlug} [{articleIndex}/{articleTotal}]</span>
         <span class="status-keys">h/l sections · j/k articles</span>
-        <span class="status-credit">&copy; 2026</span>
+        <span class="status-credit">Álvaro de Francisco &copy; 2026</span>
       </div>
     )}
 
     <script>
-      import { navigate } from 'astro:transitions/client';
+      import { initNavigationController, resetNavigationAfterSwap } from '@/scripts/nav-controller';
+      import { initSidebarController, syncSidebarForViewport } from '@/scripts/sidebar-controller';
+      import { initThemeController, syncThemeAfterSwap } from '@/scripts/theme-controller';
 
-      window.__portfolioNavState = window.__portfolioNavState || { isNavigating: false, pauseOverscroll: false };
+      initNavigationController();
+      initSidebarController();
+      initThemeController();
 
-      const toggleButton = document.getElementById('index-toggle');
-      const sidebar = document.getElementById('sidebar-index');
-
-      function setDrawer(open) {
-        if (!toggleButton || !sidebar) return;
-        toggleButton.setAttribute('aria-expanded', String(open));
-        sidebar.dataset.open = open ? 'true' : 'false';
+      const afterSwapBound = (window).__portfolioAfterSwapBound === true;
+      if (!afterSwapBound) {
+        document.addEventListener('astro:after-swap', () => {
+          resetNavigationAfterSwap();
+          syncThemeAfterSwap();
+          syncSidebarForViewport();
+        });
+        (window).__portfolioAfterSwapBound = true;
       }
-
-      // Open sidebar by default on desktop
-      if (window.innerWidth > 960) {
-        setDrawer(true);
-      }
-
-      toggleButton?.addEventListener('click', () => {
-        const expanded = toggleButton.getAttribute('aria-expanded') === 'true';
-        setDrawer(!expanded);
-      });
-
-      sidebar?.addEventListener('click', (event) => {
-        const target = event.target;
-        if (target instanceof HTMLAnchorElement) {
-          // Only auto-close on mobile
-          if (window.innerWidth <= 960) {
-            setDrawer(false);
-          }
-        }
-      });
-
-      function isTypingTarget(target) {
-        if (!(target instanceof HTMLElement)) return false;
-        const tag = target.tagName.toLowerCase();
-        return tag === 'input' || tag === 'textarea' || tag === 'select' || target.isContentEditable;
-      }
-
-      document.addEventListener('astro:before-preparation', (event) => {
-        if (event.navigationType === 'traverse') {
-          document.documentElement.dataset.navDir = 'none';
-        }
-      });
-
-      function applyStoredTheme() {
-        const stored = localStorage.getItem('theme');
-        const nextTheme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        document.documentElement.dataset.theme = nextTheme;
-      }
-
-      document.addEventListener('click', (event) => {
-        const target = event.target;
-        if (!(target instanceof HTMLElement)) return;
-        const link = target.closest('a[data-nav-dir]');
-        if (!link) return;
-        document.documentElement.dataset.navDir = link.dataset.navDir || 'none';
-      });
-
-      document.addEventListener('focusin', (event) => {
-        const target = event.target;
-        if (target instanceof HTMLIFrameElement) {
-          window.__portfolioNavState.pauseOverscroll = true;
-        }
-      });
-
-      document.addEventListener('focusout', (event) => {
-        const target = event.target;
-        if (target instanceof HTMLIFrameElement) {
-          window.__portfolioNavState.pauseOverscroll = false;
-        }
-      });
-
-      document.addEventListener('keydown', (event) => {
-        if (event.metaKey || event.ctrlKey || event.altKey) return;
-        if (isTypingTarget(event.target)) return;
-        if (window.__portfolioNavState?.isNavigating) return;
-
-        const root = document.getElementById('article-scroll-root');
-        const prevUrl = root?.dataset.prevUrl;
-        const nextUrl = root?.dataset.nextUrl;
-
-        if (event.key === 'h') {
-          const left = document.querySelector('a[data-nav-nearest="prev"]');
-          if (left instanceof HTMLAnchorElement) {
-            event.preventDefault();
-            window.__portfolioNavState.isNavigating = true;
-            document.documentElement.dataset.navDir = 'left';
-            navigate(left.href);
-          }
-        }
-
-        if (event.key === 'l') {
-          const right = document.querySelector('a[data-nav-nearest="next"]');
-          if (right instanceof HTMLAnchorElement) {
-            event.preventDefault();
-            window.__portfolioNavState.isNavigating = true;
-            document.documentElement.dataset.navDir = 'right';
-            navigate(right.href);
-          }
-        }
-
-        if (event.key === 'j' && nextUrl) {
-          event.preventDefault();
-          window.__portfolioNavState.isNavigating = true;
-          document.documentElement.dataset.navDir = 'down';
-          navigate(nextUrl);
-        }
-
-        if (event.key === 'k' && prevUrl) {
-          event.preventDefault();
-          window.__portfolioNavState.isNavigating = true;
-          document.documentElement.dataset.navDir = 'up';
-          navigate(prevUrl);
-        }
-      });
-
-      function getThemeToggle() {
-        const button = document.getElementById('theme-toggle');
-        return button instanceof HTMLButtonElement ? button : null;
-      }
-
-      function syncThemeIcon() {
-        const themeToggle = getThemeToggle();
-        if (!themeToggle) return;
-        themeToggle.textContent = document.documentElement.dataset.theme === 'dark' ? '☾' : '☀';
-      }
-
-      document.addEventListener('click', (event) => {
-        const target = event.target;
-        if (!(target instanceof HTMLElement)) return;
-        if (target.id !== 'theme-toggle') return;
-        const current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
-        const next = current === 'dark' ? 'light' : 'dark';
-        document.documentElement.dataset.theme = next;
-        localStorage.setItem('theme', next);
-        syncThemeIcon();
-      });
-
-      document.addEventListener('astro:after-swap', () => {
-        window.__portfolioNavState.isNavigating = false;
-        applyStoredTheme();
-        syncThemeIcon();
-        // Re-open sidebar on desktop after navigation
-        if (window.innerWidth > 960) {
-          setDrawer(true);
-        }
-      });
-
-      applyStoredTheme();
-      syncThemeIcon();
     </script>
   </body>
 </html>

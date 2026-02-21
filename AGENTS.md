@@ -1,5 +1,13 @@
 # Repository Guidelines
 
+## Mandatory: Corrections Logging
+- Treat `docs/DESIGN.md` as a project decision log for reproducibility.
+- Log concrete project-level choices.
+- Do not log prompt-writing/process guidance or agent-behavior notes.
+- Do not log minor quirks that can be inferred from code.
+- Keep entries brief and in `-` bullet format, grouped by date.
+- If no meaningful project decision/state change happened, add nothing.
+
 ## Project Structure & Module Organization
 - `src/` contains the Astro app:
 - `src/pages/` route files (`index.astro`, `src/pages/[section]/[slug].astro`).

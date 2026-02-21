@@ -16,13 +16,17 @@
 
 ## 2026-02-21
 
+- Added project-wide ESLint flat configuration for Astro + TypeScript (including React islands) and standardized npm lint scripts (`lint`, `lint:fix`).
 - Switched hidden vault conventions from `_` prefix to `.` prefix for top-level non-section folders and other elements.
-- Header carousel shows all sections with active centered; uses fixed-width slots (9rem) so positions don't shift when active changes.
-- Carousel items use `data-nav-nearest="prev"/"next"` on immediate neighbors for keyboard rotation (h/l), not `data-nav-dir` which matches multiple elements.
-- Sidebar is a static grid column on desktop (visible by default), fixed overlay on mobile (toggled by ≡ in header).
-- Article layout: 15vh top padding, 2rem title, `margin: 0 auto` centering (Medium-style).
+- Header carousel shows all sections and keeps the active section centered.
+- Sidebar is a grid column on desktop (visible by default), fixed overlay on mobile (toggled by ≡ in header).
+- Article pages use a centered, reading-first layout with generous top spacing.
 - Removed prev/next article buttons; replaced with peek+snap overscroll — preview strip shows next article title on overscroll, snaps on threshold.
-- Status line fixed at viewport bottom with `view-transition-name` to prevent movement during page transitions. Contains position info (left) and © credit (right). Desktop only.
-- Theme toggle moved to header right (after Spotify widget) with larger hit target (2rem min).
-- View transitions: 250ms, 35px translate, 0.97 scale. No pure fades — `data-nav-dir='none'` uses vertical slide.
+- Desktop status line is fixed at the bottom and remains stable during navigation.
+- Theme toggle is in the header area with a larger, easier hit target.
+- Navigation transitions avoid fade-only behavior and use directional movement for better spatial continuity.
+- Section changes use subtle horizontal movement; article changes use softer vertical movement.
+- Section navigation targets canonical article URLs directly and undirected transitions avoid vertical motion.
+- Theme changes are smoothly animated, desktop sidebar collapse state is persistent.
+- Frontend behavior logic is modularized into dedicated navigation, sidebar, and theme controllers with shared UI constants.
 - Sections are always odd count by design convention.

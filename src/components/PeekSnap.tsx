@@ -1,21 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { navigate } from 'astro:transitions/client';
-
-declare global {
-  interface Window {
-    __portfolioNavState?: { isNavigating: boolean; pauseOverscroll?: boolean };
-  }
-}
-
-const THRESHOLD = 150;
-const MAX_PEEK = 80;
-
-function getState() {
-  if (!window.__portfolioNavState) {
-    window.__portfolioNavState = { isNavigating: false, pauseOverscroll: false };
-  }
-  return window.__portfolioNavState;
-}
+import { getPortfolioNavState } from '@/scripts/navigation-state';
+import { PEEK_MAX, PEEK_SNAP_HOLD_MS, PEEK_THRESHOLD } from '@/scripts/ui-constants';
+import { setNavState } from '@/scripts/nav-controller';
 
 interface PeekData {
   direction: 'up' | 'down';
@@ -47,7 +34,7 @@ export default function PeekSnap() {
     function updatePeek(direction: 'up' | 'down', amount: number) {
       const data = getArticleData(direction);
       if (!data) { setPeek(null); return; }
-      const clamped = Math.min(amount, MAX_PEEK);
+      const clamped = Math.min(amount, PEEK_MAX);
       setPeek({ direction, amount: clamped, title: data.title, meta: data.meta });
     }
 
@@ -59,98 +46,84 @@ export default function PeekSnap() {
     function triggerNav(direction: 'up' | 'down') {
       const data = getArticleData(direction);
       if (!data) return;
-      const state = getState();
+      const state = getPortfolioNavState();
       state.isNavigating = true;
-      document.documentElement.dataset.navDir = direction === 'up' ? 'up' : 'down';
+      setNavState(direction === 'up' ? 'up' : 'down', 'article');
       accRef.current = 0;
-      setPeek(null);
-      navigate(data.url);
+      setPeek({ direction, amount: PEEK_MAX, title: data.title, meta: data.meta });
+      window.setTimeout(() => {
+        setPeek(null);
+        navigate(data.url);
+      }, PEEK_SNAP_HOLD_MS);
     }
 
-    const onWheel = (event: WheelEvent) => {
-      const state = getState();
+    function resetPeekProgress() {
+      if (accRef.current === 0) return;
+      accRef.current = 0;
+      resetPeek();
+    }
+
+    function processOverscrollDelta(delta: number, options: { updateTouchRef?: number } = {}) {
+      const state = getPortfolioNavState();
       if (state.isNavigating || state.pauseOverscroll) return;
-      if (event.deltaY === 0) return;
-
-      const atTop = root.scrollTop <= 0;
-      const atBottom = root.scrollTop + root.clientHeight >= root.scrollHeight;
-      if (!(atTop || atBottom)) {
-        if (accRef.current !== 0) { accRef.current = 0; resetPeek(); }
-        return;
-      }
-
-      const wantsPrev = atTop && event.deltaY < 0;
-      const wantsNext = atBottom && event.deltaY > 0;
-      if (!wantsPrev && !wantsNext) {
-        if (accRef.current !== 0) { accRef.current = 0; resetPeek(); }
-        return;
-      }
-
-      accRef.current += Math.abs(event.deltaY);
-      const direction = wantsPrev ? 'up' as const : 'down' as const;
-      updatePeek(direction, (accRef.current / THRESHOLD) * MAX_PEEK);
-
-      if (accRef.current >= THRESHOLD) {
-        triggerNav(direction);
-      }
-    };
-
-    const onScroll = () => {
-      const atTop = root.scrollTop <= 0;
-      const atBottom = root.scrollTop + root.clientHeight >= root.scrollHeight;
-      if (!atTop && !atBottom && accRef.current > 0) {
-        accRef.current = 0;
-        resetPeek();
-      }
-    };
-
-    let touchStartY = 0;
-    const onTouchStart = (event: TouchEvent) => {
-      touchStartY = event.touches[0]?.clientY ?? 0;
-      touchStartYRef.current = touchStartY;
-    };
-
-    const onTouchMove = (event: TouchEvent) => {
-      const state = getState();
-      if (state.isNavigating || state.pauseOverscroll) return;
-
-      const currentY = event.touches[0]?.clientY ?? touchStartYRef.current;
-      const delta = touchStartYRef.current - currentY;
       if (delta === 0) return;
 
+      if (options.updateTouchRef !== undefined) {
+        touchStartYRef.current = options.updateTouchRef;
+      }
       const atTop = root.scrollTop <= 0;
       const atBottom = root.scrollTop + root.clientHeight >= root.scrollHeight;
       if (!(atTop || atBottom)) {
-        if (accRef.current !== 0) { accRef.current = 0; resetPeek(); }
+        resetPeekProgress();
         return;
       }
 
       const wantsPrev = atTop && delta < 0;
       const wantsNext = atBottom && delta > 0;
       if (!wantsPrev && !wantsNext) {
-        if (accRef.current !== 0) { accRef.current = 0; resetPeek(); }
+        resetPeekProgress();
         return;
       }
 
       accRef.current += Math.abs(delta);
-      touchStartYRef.current = currentY;
       const direction = wantsPrev ? 'up' as const : 'down' as const;
-      updatePeek(direction, (accRef.current / THRESHOLD) * MAX_PEEK);
+      updatePeek(direction, (accRef.current / PEEK_THRESHOLD) * PEEK_MAX);
 
-      if (accRef.current >= THRESHOLD) {
+      if (accRef.current >= PEEK_THRESHOLD) {
         triggerNav(direction);
+      }
+    }
+
+    const onWheel = (event: WheelEvent) => {
+      processOverscrollDelta(event.deltaY);
+    };
+
+    const onScroll = () => {
+      const atTop = root.scrollTop <= 0;
+      const atBottom = root.scrollTop + root.clientHeight >= root.scrollHeight;
+      if (!atTop && !atBottom && accRef.current > 0) {
+        resetPeekProgress();
       }
     };
 
+    const onTouchStart = (event: TouchEvent) => {
+      touchStartYRef.current = event.touches[0]?.clientY ?? 0;
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      const currentY = event.touches[0]?.clientY ?? touchStartYRef.current;
+      const delta = touchStartYRef.current - currentY;
+      processOverscrollDelta(delta, { updateTouchRef: currentY });
+    };
+
     const onTouchEnd = () => {
-      if (accRef.current > 0 && accRef.current < THRESHOLD) {
-        accRef.current = 0;
-        resetPeek();
+      if (accRef.current > 0 && accRef.current < PEEK_THRESHOLD) {
+        resetPeekProgress();
       }
     };
 
     const onAfterSwap = () => {
-      getState().isNavigating = false;
+      getPortfolioNavState().isNavigating = false;
       accRef.current = 0;
       setPeek(null);
     };

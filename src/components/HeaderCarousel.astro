@@ -8,19 +8,38 @@ interface Props {
 }
 
 const { sections, currentSection } = Astro.props;
-const index = sections.indexOf(currentSection);
-const prevIndex = index <= 0 ? sections.length - 1 : index - 1;
-const nextIndex = index >= sections.length - 1 ? 0 : index + 1;
-const prevSection = sections[prevIndex];
-const nextSection = sections[nextIndex];
+const activeIndex = sections.indexOf(currentSection);
+
+// Build circular order: place active in center, wrap others around it
+const count = sections.length;
+const half = Math.floor(count / 2);
+const ordered: { name: string; offset: number }[] = [];
+for (let i = -half; i <= half; i++) {
+  if (count % 2 === 0 && i === half) continue;
+  const idx = ((activeIndex + i) % count + count) % count;
+  ordered.push({ name: sections[idx], offset: i });
+}
 ---
 
 <header class="top-header">
-  <div class="widget-left"><ClockWidget client:load /></div>
+  <div class="widget-left clock-cluster">
+    <ClockWidget client:load />
+  </div>
   <nav class="carousel-nav" aria-label="Section navigation">
-    <a href={`/${prevSection}`} data-nav-dir="left" class="dimmed">{prevSection}</a>
-    <span class="active">{currentSection}</span>
-    <a href={`/${nextSection}`} data-nav-dir="right" class="dimmed">{nextSection}</a>
+    {ordered.map(({ name, offset }) => {
+      if (offset === 0) {
+        return <span class="carousel-item active">{name}</span>;
+      }
+      const dir = offset < 0 ? 'left' : 'right';
+      return (
+        <a href={`/${name}`} data-nav-dir={dir} class="carousel-item dimmed">
+          {name}
+        </a>
+      );
+    })}
   </nav>
-  <div class="widget-right"><SpotifyNowPlaying client:load /></div>
+  <div class="widget-right">
+    <SpotifyNowPlaying client:load />
+    <button id="theme-toggle" type="button" class="theme-toggle" aria-label="Toggle theme">☀</button>
+  </div>
 </header>

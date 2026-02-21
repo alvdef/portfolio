@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { exchangeCodeForRefreshToken, getSpotifyEnv } from './_spotify';
+import { exchangeCodeForRefreshToken, getSpotifyEnv } from './_spotify.js';
 
 export default async function handler(request: VercelRequest, response: VercelResponse) {
   const env = getSpotifyEnv();

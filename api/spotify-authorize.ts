@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { buildAuthorizeUrl, getSpotifyEnv } from './_spotify';
+import { buildAuthorizeUrl, getSpotifyEnv } from './_spotify.js';
 
 export default async function handler(_: VercelRequest, response: VercelResponse) {
   const env = getSpotifyEnv();

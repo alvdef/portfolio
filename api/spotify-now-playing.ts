@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { fetchNowPlaying, getSpotifyEnv, refreshAccessToken } from './_spotify';
+import { fetchNowPlaying, getSpotifyEnv, refreshAccessToken } from './_spotify.js';
 
 export default async function handler(_: VercelRequest, response: VercelResponse) {
   response.setHeader('Cache-Control', 's-maxage=15, stale-while-revalidate=30');

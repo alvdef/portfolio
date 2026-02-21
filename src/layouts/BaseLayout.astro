@@ -24,13 +24,20 @@ const { title, currentSection, sections, sectionGroups, currentSlug, prevUrl, ne
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
+    <script is:inline>
+      (() => {
+        const stored = localStorage.getItem('theme');
+        const nextTheme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.dataset.theme = nextTheme;
+      })();
+    </script>
     <ClientRouter />
   </head>
   <body>
     <div class="app-grid">
       <HeaderCarousel sections={sections} currentSection={currentSection} />
 
-      <button id="index-toggle" class="index-toggle" type="button" aria-controls="sidebar-index" aria-expanded="false">INDEX ↓</button>
+      <button id="index-toggle" class="index-toggle" type="button" aria-controls="sidebar-index" aria-expanded="false">≡</button>
       <Sidebar groups={sectionGroups} currentSlug={currentSlug} />
 
       <main class="content-pane" data-prev-url={prevUrl ?? ''} data-next-url={nextUrl ?? ''}>
@@ -50,7 +57,6 @@ const { title, currentSection, sections, sectionGroups, currentSlug, prevUrl, ne
       function setDrawer(open) {
         if (!toggleButton || !sidebar) return;
         toggleButton.setAttribute('aria-expanded', String(open));
-        toggleButton.textContent = open ? 'INDEX ↑' : 'INDEX ↓';
         sidebar.dataset.open = open ? 'true' : 'false';
       }
 
@@ -78,9 +84,11 @@ const { title, currentSection, sections, sectionGroups, currentSlug, prevUrl, ne
         }
       });
 
-      document.addEventListener('astro:after-swap', () => {
-        window.__portfolioNavState.isNavigating = false;
-      });
+      function applyStoredTheme() {
+        const stored = localStorage.getItem('theme');
+        const nextTheme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.dataset.theme = nextTheme;
+      }
 
       document.addEventListener('click', (event) => {
         const target = event.target;
@@ -147,6 +155,37 @@ const { title, currentSection, sections, sectionGroups, currentSlug, prevUrl, ne
           navigate(prevUrl);
         }
       });
+
+      function getThemeToggle() {
+        const button = document.getElementById('theme-toggle');
+        return button instanceof HTMLButtonElement ? button : null;
+      }
+
+      function syncThemeIcon() {
+        const themeToggle = getThemeToggle();
+        if (!themeToggle) return;
+        themeToggle.textContent = document.documentElement.dataset.theme === 'dark' ? '☾' : '☀';
+      }
+
+      document.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        if (target.id !== 'theme-toggle') return;
+        const current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        localStorage.setItem('theme', next);
+        syncThemeIcon();
+      });
+
+      document.addEventListener('astro:after-swap', () => {
+        window.__portfolioNavState.isNavigating = false;
+        applyStoredTheme();
+        syncThemeIcon();
+      });
+
+      applyStoredTheme();
+      syncThemeIcon();
     </script>
   </body>
 </html>

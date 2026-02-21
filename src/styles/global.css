@@ -51,6 +51,20 @@
   --pane-width: minmax(0, 1fr);
 }
 
+:root[data-theme='light'] {
+  --bg: var(--color-white);
+  --fg: var(--color-black);
+  --muted: var(--color-gray-700);
+  --line: var(--color-gray-200);
+}
+
+:root[data-theme='dark'] {
+  --bg: var(--color-black);
+  --fg: var(--color-white);
+  --muted: var(--color-gray-400);
+  --line: var(--color-gray-700);
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: var(--color-black);
@@ -123,6 +137,23 @@ a:hover {
 .widget-left,
 .widget-right {
   min-width: 0;
+}
+
+.clock-cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.theme-toggle {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
 }
 
 .widget-right {
@@ -264,12 +295,12 @@ a:hover {
 }
 
 ::view-transition-old(root) {
-  animation-duration: 180ms;
+  animation-duration: 250ms;
   animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
 }
 
 ::view-transition-new(root) {
-  animation-duration: 180ms;
+  animation-duration: 250ms;
   animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
@@ -281,57 +312,47 @@ a:hover {
 :root[data-nav-dir='up']::view-transition-new(root) { animation-name: slide-in-down; }
 :root[data-nav-dir='down']::view-transition-old(root) { animation-name: slide-out-down; }
 :root[data-nav-dir='down']::view-transition-new(root) { animation-name: slide-in-up; }
-:root[data-nav-dir='none']::view-transition-old(root) { animation-name: fade-out; }
-:root[data-nav-dir='none']::view-transition-new(root) { animation-name: fade-in; }
+:root[data-nav-dir='none']::view-transition-old(root) { animation-name: slide-out-down; }
+:root[data-nav-dir='none']::view-transition-new(root) { animation-name: slide-in-up; }
 
 @keyframes slide-out-left {
   from { opacity: 1; transform: translateX(0) scale(1); }
-  to { opacity: 0; transform: translateX(-20px) scale(0.985); }
+  to { opacity: 0; transform: translateX(-35px) scale(0.97); }
 }
 
 @keyframes slide-in-right {
-  from { opacity: 0; transform: translateX(20px); }
+  from { opacity: 0; transform: translateX(35px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes slide-out-right {
   from { opacity: 1; transform: translateX(0) scale(1); }
-  to { opacity: 0; transform: translateX(20px) scale(0.985); }
+  to { opacity: 0; transform: translateX(35px) scale(0.97); }
 }
 
 @keyframes slide-in-left {
-  from { opacity: 0; transform: translateX(-20px); }
+  from { opacity: 0; transform: translateX(-35px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes slide-out-up {
   from { opacity: 1; transform: translateY(0) scale(1); }
-  to { opacity: 0; transform: translateY(-20px) scale(0.985); }
+  to { opacity: 0; transform: translateY(-35px) scale(0.97); }
 }
 
 @keyframes slide-in-down {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(35px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slide-out-down {
   from { opacity: 1; transform: translateY(0) scale(1); }
-  to { opacity: 0; transform: translateY(20px) scale(0.985); }
+  to { opacity: 0; transform: translateY(35px) scale(0.97); }
 }
 
 @keyframes slide-in-up {
-  from { opacity: 0; transform: translateY(-20px); }
+  from { opacity: 0; transform: translateY(-35px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fade-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }
 
 @media (max-width: 960px) {

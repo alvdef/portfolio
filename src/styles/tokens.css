@@ -57,13 +57,9 @@
   --section-shift: 22px;
   --section-duration: 420ms;
   --section-ease: var(--motion-apple);
-  --article-shift: 16px;
-  --article-duration: 360ms;
-  --article-ease: var(--motion-apple-soft);
   --key-nav-duration: 320ms;
   --key-nav-ease: cubic-bezier(0.25, 0.8, 0.25, 1);
   --key-section-shift: 30px;
-  --key-article-shift: 22px;
   --header-clock-offset: 2.4rem;
 }
 

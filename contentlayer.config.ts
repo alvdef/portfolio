@@ -18,5 +18,6 @@ export const Doc = defineDocumentType(() => ({
 
 export default makeSource({
   contentDirPath: 'content',
+  contentDirExclude: ['**/_*'],
   documentTypes: [Doc]
 });

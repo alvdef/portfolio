@@ -97,7 +97,7 @@ export function parseYoutubeConfig(markdown: string): YoutubeConfig {
   const playlistId = playlist ? extractPlaylistId(playlist) : null;
 
   if (!playlistId) {
-    throw new Error('Missing or invalid playlist in vault/about_me/.youtube.md frontmatter.');
+    throw new Error('Missing or invalid playlist in vault/about_me/_youtube.md frontmatter.');
   }
 
   const notesByVideoId = new Map<string, string>();
@@ -198,7 +198,7 @@ export async function loadYoutubeRows() {
     throw new Error('Missing YOUTUBE_API_KEY environment variable.');
   }
 
-  const configFile = process.env.YOUTUBE_NOTES_FILE || path.join(process.cwd(), 'content/about_me/.youtube.md');
+  const configFile = process.env.YOUTUBE_NOTES_FILE || path.join(process.cwd(), 'content/about_me/_youtube.md');
   if (!existsSync(configFile)) {
     throw new Error(`Missing notes file: ${configFile}`);
   }

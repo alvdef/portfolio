@@ -11,7 +11,7 @@
     "lint:fix": "npm run lint -- --fix"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.12",
+    "@tailwindcss/postcss": "^4.2.1",
     "contentlayer": "^0.3.4",
     "next": "^13.5.11",
     "next-contentlayer": "^0.3.4",

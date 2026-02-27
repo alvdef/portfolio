@@ -214,6 +214,7 @@
 .youtube-table-wrap {
   overflow-x: hidden;
   margin-top: 0.85rem;
+  padding-bottom: 40vh;  /* ← add this line */
 }
 
 .youtube-table {

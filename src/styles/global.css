@@ -5,6 +5,5 @@
 @import './components/sidebar.css';
 @import './components/article.css';
 @import './components/status-line.css';
-@import './components/peek.css';
 @import './state/transitions.css';
 @import './responsive.css';

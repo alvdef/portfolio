@@ -1,35 +1,22 @@
-export interface ArticleLinkData {
-  url: string;
-  title: string;
-  meta: string;
+export function getArticleElements(): HTMLElement[] {
+  const contentPane = document.querySelector('.content-pane');
+  if (!contentPane) return [];
+  return Array.from(contentPane.querySelectorAll<HTMLElement>('[data-article-slug]'));
 }
 
-export function getArticleScrollRoot() {
-  const root = document.getElementById('article-scroll-root');
-  return root instanceof HTMLElement ? root : null;
+export function getActiveArticleSlug(): string | null {
+  return new URL(window.location.href).pathname.split('/').pop() || null;
 }
 
-export function getAdjacentArticleData(direction: 'up' | 'down'): ArticleLinkData | null {
-  const root = getArticleScrollRoot();
-  if (!root) return null;
+export function getAdjacentArticle(direction: 'up' | 'down'): HTMLElement | null {
+  const articles = getArticleElements();
+  const activeSlug = getActiveArticleSlug();
+  const currentIndex = articles.findIndex((el) => el.dataset.articleSlug === activeSlug);
+  if (currentIndex === -1) return null;
 
-  const prefix = direction === 'up' ? 'prev' : 'next';
-  const url = root.dataset[`${prefix}Url`];
-  if (!url) return null;
-
-  return {
-    url,
-    title: root.dataset[`${prefix}Title`] || '',
-    meta: root.dataset[`${prefix}Meta`] || ''
-  };
-}
-
-export function getArticleNeighborUrls() {
-  const root = getArticleScrollRoot();
-  return {
-    prevUrl: root?.dataset.prevUrl || '',
-    nextUrl: root?.dataset.nextUrl || ''
-  };
+  if (direction === 'up' && currentIndex > 0) return articles[currentIndex - 1];
+  if (direction === 'down' && currentIndex < articles.length - 1) return articles[currentIndex + 1];
+  return null;
 }
 
 export function getSectionCarouselElements() {

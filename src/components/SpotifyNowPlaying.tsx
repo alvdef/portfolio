@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type NowPlaying = {
   playing: boolean;
   artist?: string;
   title?: string;
+  lastPlayed?: boolean;
 };
 
 export default function SpotifyNowPlaying() {
@@ -26,21 +27,25 @@ export default function SpotifyNowPlaying() {
     }
 
     run();
-    const timer = window.setInterval(run, 30000);
+    const timer = window.setInterval(run, 15_000);
     return () => {
       cancelled = true;
       window.clearInterval(timer);
     };
   }, []);
 
-  const text = useMemo(() => {
-    if (!state.playing || !state.artist || !state.title) {
-      return 'Silence';
-    }
-    return `• ${state.artist} - ${state.title}`;
-  }, [state]);
+  const playing = state.playing && state.artist && state.title;
+  const lastPlayed = !playing && state.lastPlayed && state.artist && state.title;
+
+  if (!playing && !lastPlayed) return null;
 
   return (
-    <div className="mono-widget spotify-now-playing" aria-label="Spotify now playing">{text}</div>
+    <div className="mono-widget spotify-now-playing" aria-label="Spotify now playing">
+      {playing ? (
+        <><span className="spotify-dot">•</span> {state.artist} - {state.title}</>
+      ) : (
+        <>· last: {state.artist} - {state.title}</>
+      )}
+    </div>
   );
 }

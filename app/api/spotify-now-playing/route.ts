@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
-import { fetchNowPlaying, getSpotifyEnv, refreshAccessToken } from '@/server/spotify';
+import { fetchNowPlaying, fetchRecentlyPlayed, getSpotifyEnv, refreshAccessToken } from '@/server/spotify';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-const CACHE_HEADERS = { 'Cache-Control': 's-maxage=15, stale-while-revalidate=30' };
+const CACHE_HEADERS = { 'Cache-Control': 'no-cache, no-store' };
 
 export async function GET() {
   try {
@@ -23,26 +24,31 @@ export async function GET() {
     }
 
     const nowPlaying = await fetchNowPlaying(token);
-    if (nowPlaying.status === 204 || !nowPlaying.ok) {
-      return NextResponse.json({ playing: false }, { headers: CACHE_HEADERS });
+
+    if (nowPlaying.ok && nowPlaying.status !== 204) {
+      const payload = await nowPlaying.json();
+      const artist = payload?.item?.artists?.[0]?.name;
+      const title = payload?.item?.name;
+
+      if (artist && title && payload?.is_playing) {
+        return NextResponse.json({ playing: true, artist, title }, { headers: CACHE_HEADERS });
+      }
     }
 
-    const payload = await nowPlaying.json();
-    const artist = payload?.item?.artists?.[0]?.name;
-    const title = payload?.item?.name;
+    // Nothing playing — try recently played
+    const recent = await fetchRecentlyPlayed(token);
+    if (recent.ok) {
+      const recentPayload = await recent.json();
+      const track = recentPayload?.items?.[0]?.track;
+      const artist = track?.artists?.[0]?.name;
+      const title = track?.name;
 
-    if (!artist || !title) {
-      return NextResponse.json({ playing: false }, { headers: CACHE_HEADERS });
+      if (artist && title) {
+        return NextResponse.json({ playing: false, artist, title, lastPlayed: true }, { headers: CACHE_HEADERS });
+      }
     }
 
-    return NextResponse.json(
-      {
-        playing: Boolean(payload?.is_playing),
-        artist,
-        title
-      },
-      { headers: CACHE_HEADERS }
-    );
+    return NextResponse.json({ playing: false }, { headers: CACHE_HEADERS });
   } catch {
     return NextResponse.json({ playing: false }, { headers: CACHE_HEADERS });
   }

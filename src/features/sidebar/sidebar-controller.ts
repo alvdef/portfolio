@@ -60,8 +60,24 @@ function handleDocumentClick(event: MouseEvent) {
   }
 
   const sidebarLink = target.closest('#sidebar-index a[href]');
-  if (sidebarLink instanceof HTMLAnchorElement && !isDesktopViewport()) {
-    setDrawer(false, { persistDesktop: false });
+  if (sidebarLink instanceof HTMLAnchorElement) {
+    // Check if this is a same-section link (scroll instead of navigate)
+    const href = sidebarLink.getAttribute('href') || '';
+    const currentSection = window.location.pathname.split('/')[1];
+    const linkSection = href.split('/')[1];
+
+    if (currentSection && linkSection === currentSection) {
+      event.preventDefault();
+      const slug = href.split('/')[2];
+      const articleEl = document.getElementById(`article-${slug}`);
+      if (articleEl) {
+        articleEl.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    if (!isDesktopViewport()) {
+      setDrawer(false, { persistDesktop: false });
+    }
   }
 }
 

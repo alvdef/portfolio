@@ -4,6 +4,7 @@ import MdxContent from '@/components/content/MdxContent';
 import YoutubePlaylistTable from '@/components/YoutubePlaylistTable';
 import { getPublishedDocs, groupDocsByGroup } from '@/lib/content';
 import { getSectionLandingLinks } from '@/features/navigation/section-links';
+import ArticleObserver from '@/components/ArticleObserver';
 
 function toIsoDate(input: string) {
   return new Date(input).toISOString().slice(0, 10);
@@ -32,10 +33,6 @@ export default async function ArticlePage({ params }: { params: Promise<{ sectio
   }));
 
   const index = sectionDocs.findIndex((item) => item._id === doc._id);
-  const prevDoc = index > 0 ? sectionDocs[index - 1] : null;
-  const nextDoc = index < sectionDocs.length - 1 ? sectionDocs[index + 1] : null;
-
-  const isYoutubeVirtualDoc = doc.sourceType === 'virtual' && doc.section === 'about_me' && doc.slug === 'youtube';
 
   return (
     <BaseLayout
@@ -44,41 +41,49 @@ export default async function ArticlePage({ params }: { params: Promise<{ sectio
       sectionLinks={sectionLinks}
       sectionGroups={sectionGroups}
       currentSlug={doc.slug}
-      prevUrl={prevDoc ? `/${prevDoc.section}/${prevDoc.slug}` : null}
-      nextUrl={nextDoc ? `/${nextDoc.section}/${nextDoc.slug}` : null}
       articleIndex={index + 1}
       articleTotal={sectionDocs.length}
     >
-      <article
-        id="article-scroll-root"
-        className="article-body"
-        data-next-url={nextDoc ? `/${nextDoc.section}/${nextDoc.slug}` : ''}
-        data-prev-url={prevDoc ? `/${prevDoc.section}/${prevDoc.slug}` : ''}
-        data-next-title={nextDoc?.title ?? ''}
-        data-next-meta={nextDoc ? `${nextDoc.group} / ${toIsoDate(nextDoc.date)}` : ''}
-        data-prev-title={prevDoc?.title ?? ''}
-        data-prev-meta={prevDoc ? `${prevDoc.group} / ${toIsoDate(prevDoc.date)}` : ''}
-      >
-        <header className="article-header">
-          <h1>{doc.title}</h1>
-          <p className="meta">
-            {doc.group} / {toIsoDate(doc.date)}
-          </p>
-        </header>
-        {doc.sourceType === 'virtual' ? (
-          isYoutubeVirtualDoc ? (
-            <section className="youtube-directory">
-              <YoutubePlaylistTable />
-            </section>
-          ) : (
-            <p>Virtual document has no renderer.</p>
-          )
-        ) : doc.body?.code ? (
-          <MdxContent code={doc.body.code} />
-        ) : (
-          <p>Document renderer unavailable.</p>
-        )}
-      </article>
+      {sectionDocs.map((sectionDoc, i) => {
+        const isYoutube = sectionDoc.sourceType === 'virtual' && sectionDoc.section === 'about_me' && sectionDoc.slug === 'youtube';
+        return (
+          <div key={sectionDoc._id}>
+            {i > 0 && <hr className="article-divider" />}
+            <article
+              id={`article-${sectionDoc.slug}`}
+              className="article-body"
+              data-article-slug={sectionDoc.slug}
+              data-article-index={i + 1}
+              data-article-section={sectionDoc.section}
+            >
+              <header className="article-header">
+                <h1>{sectionDoc.title}</h1>
+                <p className="meta">
+                  {sectionDoc.group} / {toIsoDate(sectionDoc.date)}
+                </p>
+              </header>
+              {sectionDoc.sourceType === 'virtual' ? (
+                isYoutube ? (
+                  <section className="youtube-directory">
+                    <YoutubePlaylistTable />
+                  </section>
+                ) : (
+                  <p>Virtual document has no renderer.</p>
+                )
+              ) : sectionDoc.body?.code ? (
+                <MdxContent code={sectionDoc.body.code} />
+              ) : (
+                <p>Document renderer unavailable.</p>
+              )}
+            </article>
+          </div>
+        );
+      })}
+      <ArticleObserver
+        initialSlug={slug}
+        section={section}
+        totalArticles={sectionDocs.length}
+      />
     </BaseLayout>
   );
 }

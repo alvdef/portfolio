@@ -1,6 +1,7 @@
 const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
 const AUTHORIZE_ENDPOINT = 'https://accounts.spotify.com/authorize';
 const NOW_PLAYING_ENDPOINT = 'https://api.spotify.com/v1/me/player/currently-playing';
+const RECENTLY_PLAYED_ENDPOINT = 'https://api.spotify.com/v1/me/player/recently-played?limit=1';
 
 type SpotifyEnv = {
   clientId: string;
@@ -38,7 +39,7 @@ export function buildAuthorizeUrl(clientId: string, redirectUri: string) {
     client_id: clientId,
     response_type: 'code',
     redirect_uri: redirectUri,
-    scope: 'user-read-currently-playing user-read-playback-state'
+    scope: 'user-read-currently-playing user-read-playback-state user-read-recently-played'
   });
 
   return `${AUTHORIZE_ENDPOINT}?${params.toString()}`;
@@ -90,7 +91,8 @@ export async function refreshAccessToken(params: {
       client_secret: params.clientSecret,
       grant_type: 'refresh_token',
       refresh_token: params.refreshToken
-    })
+    }),
+    cache: 'no-store'
   });
 
   if (!response.ok) {
@@ -103,6 +105,14 @@ export async function refreshAccessToken(params: {
 
 export async function fetchNowPlaying(accessToken: string) {
   return fetch(NOW_PLAYING_ENDPOINT, {
-    headers: { Authorization: `Bearer ${accessToken}` }
+    headers: { Authorization: `Bearer ${accessToken}` },
+    cache: 'no-store'
+  });
+}
+
+export async function fetchRecentlyPlayed(accessToken: string) {
+  return fetch(RECENTLY_PLAYED_ENDPOINT, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    cache: 'no-store'
   });
 }

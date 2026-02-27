@@ -1,6 +1,5 @@
 export interface PortfolioNavState {
   isNavigating: boolean;
-  pauseOverscroll: boolean;
 }
 
 declare global {
@@ -14,7 +13,7 @@ declare global {
 
 export function getPortfolioNavState(): PortfolioNavState {
   if (!window.__portfolioNavState) {
-    window.__portfolioNavState = { isNavigating: false, pauseOverscroll: false };
+    window.__portfolioNavState = { isNavigating: false };
   }
   return window.__portfolioNavState;
 }

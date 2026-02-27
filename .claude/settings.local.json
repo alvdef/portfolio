@@ -5,5 +5,8 @@
       "mcp__plugin_context7-plugin_context7__query-docs",
       "Bash(git add:*)"
     ]
+  },
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true
   }
 }

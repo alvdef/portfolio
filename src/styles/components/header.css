@@ -19,6 +19,12 @@
   cursor: pointer;
 }
 
+@media (min-width: 961px) {
+  .index-toggle {
+    display: none;
+  }
+}
+
 .widget-right {
   display: inline-flex;
   align-items: center;
@@ -109,7 +115,17 @@
 }
 
 .spotify-now-playing {
-  max-width: 28ch;
+  max-width: 32ch;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.spotify-dot {
+  display: inline-block;
+  animation: dot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }

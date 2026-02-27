@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "about_me/home.md",
+                "file": "about_me/intro.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "home"
+              "title": "intro"
             }
           }
         ]
@@ -187,6 +187,6 @@
     "_notes/readme exponential template.md",
     "_notes",
     "readme exponential.md",
-    "about_me/home.md"
+    "about_me/intro.md"
   ]
 }

@@ -1,5 +1,5 @@
 import { getPortfolioNavState } from '@/features/navigation/navigation-state';
-import { getArticleNeighborUrls, getSectionCarouselElements } from '@/features/navigation/dom-data';
+import { getAdjacentArticle, getSectionCarouselElements } from '@/features/navigation/dom-data';
 
 export type NavDir = 'left' | 'right' | 'up' | 'down' | 'none';
 export type NavAxis = 'section' | 'article' | 'none';
@@ -54,28 +54,14 @@ function handleLinkNavState(event: MouseEvent) {
   setNavState(dir, axis, 'pointer');
 }
 
-function handleIframeFocusIn(event: FocusEvent) {
-  if (event.target instanceof HTMLIFrameElement) {
-    getPortfolioNavState().pauseOverscroll = true;
-  }
-}
-
-function handleIframeFocusOut(event: FocusEvent) {
-  if (event.target instanceof HTMLIFrameElement) {
-    getPortfolioNavState().pauseOverscroll = false;
-  }
-}
-
 function handleKeyNavigation(event: KeyboardEvent) {
   if (event.metaKey || event.ctrlKey || event.altKey) return;
   if (isTypingTarget(event.target)) return;
 
   const state = getPortfolioNavState();
-  if (state.isNavigating) return;
-
-  const { prevUrl, nextUrl } = getArticleNeighborUrls();
 
   if (event.key === 'h') {
+    if (state.isNavigating) return;
     const left = document.querySelector('a[data-nav-nearest="prev"]');
     if (left instanceof HTMLAnchorElement) {
       event.preventDefault();
@@ -86,6 +72,7 @@ function handleKeyNavigation(event: KeyboardEvent) {
   }
 
   if (event.key === 'l') {
+    if (state.isNavigating) return;
     const right = document.querySelector('a[data-nav-nearest="next"]');
     if (right instanceof HTMLAnchorElement) {
       event.preventDefault();
@@ -95,18 +82,20 @@ function handleKeyNavigation(event: KeyboardEvent) {
     }
   }
 
-  if (event.key === 'j' && nextUrl) {
-    event.preventDefault();
-    state.isNavigating = true;
-    setNavState('down', 'article', 'keyboard');
-    navigateTo(nextUrl);
+  if (event.key === 'j') {
+    const next = getAdjacentArticle('down');
+    if (next) {
+      event.preventDefault();
+      next.scrollIntoView({ behavior: 'smooth' });
+    }
   }
 
-  if (event.key === 'k' && prevUrl) {
-    event.preventDefault();
-    state.isNavigating = true;
-    setNavState('up', 'article', 'keyboard');
-    navigateTo(prevUrl);
+  if (event.key === 'k') {
+    const prev = getAdjacentArticle('up');
+    if (prev) {
+      event.preventDefault();
+      prev.scrollIntoView({ behavior: 'smooth' });
+    }
   }
 }
 
@@ -123,8 +112,6 @@ export function initNavigationController() {
   initialized = true;
 
   document.addEventListener('click', handleLinkNavState);
-  document.addEventListener('focusin', handleIframeFocusIn);
-  document.addEventListener('focusout', handleIframeFocusOut);
   document.addEventListener('keydown', handleKeyNavigation);
   window.addEventListener('resize', syncSectionCarousel);
   syncSectionCarousel();

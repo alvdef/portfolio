@@ -3,7 +3,6 @@
 @media (max-width: 960px) {
   :root {
     --section-shift: 16px;
-    --article-shift: 12px;
   }
 
   .app-grid {
@@ -35,7 +34,7 @@
   }
 
   .top-header {
-    grid-template-columns: minmax(2rem, 1fr) minmax(0, 1fr) minmax(2rem, 1fr);
+    grid-template-columns: auto 1fr auto;
   }
 
   .content-pane {
@@ -43,9 +42,15 @@
   }
 
   .article-body {
-    max-width: 100%;
     padding: 8vh 0.9rem 3rem;
-    transform: none;
+    margin-left: auto;
+    margin-right: auto;
+    min-height: calc(100vh - 3rem);
+  }
+
+  .article-divider {
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .widget-left,
@@ -66,14 +71,28 @@
     display: none !important;
   }
 
+  .carousel-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+  }
+
+  .carousel-rail {
+    overflow: visible;
+  }
+
   .carousel-item {
-    font-size: 0.62rem;
-    padding: 0 0.55rem;
-    max-width: 10rem;
+    font-size: 0.6rem;
+    padding: 0 0.4rem;
+    max-width: none;
+    opacity: 0.6;
   }
 
   .carousel-item.active {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    max-width: none;
+    opacity: 1;
   }
 
   .status-line {

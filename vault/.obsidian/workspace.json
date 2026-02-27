@@ -11,14 +11,10 @@
             "id": "7e8011a8f082d73a",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "about_me/intro.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "intro"
+              "title": "New tab"
             }
           }
         ]
@@ -182,11 +178,12 @@
   },
   "active": "7e8011a8f082d73a",
   "lastOpenFiles": [
+    "about_me/intro.md",
+    "about_me/home.md",
     "readme exponential template.md",
     "_notes/readme exponential.md",
     "_notes/readme exponential template.md",
     "_notes",
-    "readme exponential.md",
-    "about_me/intro.md"
+    "readme exponential.md"
   ]
 }

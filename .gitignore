@@ -8,3 +8,4 @@ dist/
 !src/lib/**
 .vercel
 .worktrees/
+tsconfig.tsbuildinfo

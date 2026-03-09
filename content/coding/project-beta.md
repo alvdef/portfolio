@@ -4,8 +4,6 @@ order: 2
 date: "2026-02-17"
 group: "BECA"
 status: "published"
-slug: "project-beta"
-section: "coding"
 ---
 
 # Project Beta

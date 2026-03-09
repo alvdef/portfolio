@@ -6,13 +6,21 @@ export const Doc = defineDocumentType(() => ({
   contentType: 'mdx',
   fields: {
     title: { type: 'string', required: true },
-    slug: { type: 'string', required: true },
     order: { type: 'number', required: true },
     date: { type: 'date', required: true },
-    section: { type: 'string', required: true },
     group: { type: 'string', required: true },
     status: { type: 'string', required: true },
     tag: { type: 'list', of: { type: 'string' }, required: false }
+  },
+  computedFields: {
+    slug: {
+      type: 'string',
+      resolve: (doc) => doc._raw.sourceFileName.replace(/\.md$/, '')
+    },
+    section: {
+      type: 'string',
+      resolve: (doc) => doc._raw.flattenedPath.split('/')[0]
+    }
   }
 }));
 

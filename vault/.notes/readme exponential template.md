@@ -4,7 +4,6 @@ order: 1
 date: 2026-02-19
 group: PERSONAL
 status:
-slug: home
 ---
 
 *Hey there, Exponential team here. This document is a template for you to create the perfect Exponential showcase doc. We use this doc (among other things) to share your profile with partner startups. Feel free to tweak and make your own, this is just our base recommendation. You can check out a full example [here](https://github.com/gulipad/exponential).*

@@ -4,7 +4,6 @@ order: 1
 date: 2026-02-19
 group: PERSONAL
 status:
-slug: home
 ---
 **Best with:** AWS, Python, 
 **Familiar with:** React, Javascript, 

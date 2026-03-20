@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "rm -rf public/assets && mkdir -p public/assets && cp -va vault/assets/. public/assets/",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .js,.mjs,.cjs,.ts,.tsx",

@@ -15,8 +15,8 @@ export function generateStaticParams() {
   return getPublishedDocs().map((doc) => ({ section: doc.section, slug: doc.slug }));
 }
 
-export default async function ArticlePage({ params }: { params: Promise<{ section: string; slug: string }> }) {
-  const { section, slug } = await params;
+export default async function ArticlePage({ params }: { params: { section: string; slug: string } }) {
+  const { section, slug } = params;
 
   const docs = getPublishedDocs();
   const doc = docs.find((item) => item.section === section && item.slug === slug);

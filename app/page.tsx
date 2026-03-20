@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { getPublishedDocs } from '@/lib/content';
 
 export default async function HomePage() {
-  const docs = await getPublishedDocs();
+  const docs = getPublishedDocs();
   const firstDoc = docs[0];
 
   if (!firstDoc) {

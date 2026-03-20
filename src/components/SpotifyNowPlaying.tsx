@@ -44,7 +44,7 @@ export default function SpotifyNowPlaying() {
       {playing ? (
         <><span className="spotify-dot">•</span> {state.artist} - {state.title}</>
       ) : (
-        <>· last: {state.artist} - {state.title}</>
+        <> Not listening to anything</>
       )}
     </div>
   );

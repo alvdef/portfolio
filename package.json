@@ -12,15 +12,17 @@
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.2.1",
-    "contentlayer": "^0.3.4",
+    "gray-matter": "^4.0.3",
     "next": "^13.5.11",
-    "next-contentlayer": "^0.3.4",
+    "next-mdx-remote": "^6.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "tailwindcss": "^4.1.12"
+    "tailwindcss": "^4.1.12",
+    "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/node": "25.5.0",
     "@types/react": "19.2.14",
     "eslint": "^10.0.1",
     "globals": "^17.3.0",

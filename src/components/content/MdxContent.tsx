@@ -1,12 +1,15 @@
-'use client';
-
-import { useMDXComponent } from 'next-contentlayer/hooks';
+import { MDXRemote } from 'next-mdx-remote/rsc';
+import remarkWikilinks from '@/lib/remark-wikilinks';
 
 type Props = {
-  code: string;
+  source: string;
 };
 
-export default function MdxContent({ code }: Props) {
-  const Content = useMDXComponent(code);
-  return <Content />;
+export default function MdxContent({ source }: Props) {
+  return (
+    <MDXRemote
+      source={source}
+      options={{ mdxOptions: { remarkPlugins: [remarkWikilinks] } }}
+    />
+  );
 }

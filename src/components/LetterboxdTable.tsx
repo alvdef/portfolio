@@ -3,12 +3,11 @@
 import { useEffect, useState } from 'react';
 
 type Row = {
-  videoId: string;
   title: string;
+  year: number;
+  rating: number;
+  watchedDate: string;
   url: string;
-  uploadedAt: string;
-  channelTitle: string;
-  channelUrl: string;
 };
 
 type Payload = {
@@ -17,7 +16,13 @@ type Payload = {
   rows?: Row[];
 };
 
-export default function YoutubePlaylistTable({ playlistId }: { playlistId: string }) {
+function stars(rating: number): string {
+  const full = Math.floor(rating);
+  const half = rating % 1 >= 0.5;
+  return '\u2605'.repeat(full) + (half ? '\u00BD' : '');
+}
+
+export default function LetterboxdTable({ username }: { username: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
@@ -30,13 +35,13 @@ export default function YoutubePlaylistTable({ playlistId }: { playlistId: strin
       setError(null);
 
       try {
-        const response = await fetch(`/api/youtube-playlist?playlistId=${encodeURIComponent(playlistId)}`);
+        const response = await fetch(`/api/letterboxd?username=${encodeURIComponent(username)}`);
         const payload = (await response.json()) as Payload;
         if (cancelled) return;
 
         if (!payload.ok) {
           setRows([]);
-          setError(payload.error ?? 'Failed to load playlist data.');
+          setError(payload.error ?? 'Failed to load film data.');
           return;
         }
 
@@ -44,7 +49,7 @@ export default function YoutubePlaylistTable({ playlistId }: { playlistId: strin
       } catch {
         if (!cancelled) {
           setRows([]);
-          setError('Failed to load playlist data.');
+          setError('Failed to load film data.');
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -53,11 +58,11 @@ export default function YoutubePlaylistTable({ playlistId }: { playlistId: strin
 
     void load();
     return () => { cancelled = true; };
-  }, [playlistId]);
+  }, [username]);
 
-  if (loading) return <p className="youtube-loading">Loading playlist...</p>;
+  if (loading) return <p className="youtube-loading">Loading films...</p>;
   if (error) return <p className="youtube-error">{error}</p>;
-  if (rows.length === 0) return <p className="youtube-empty">No videos found.</p>;
+  if (rows.length === 0) return <p className="youtube-empty">No films found.</p>;
 
   return (
     <div className="youtube-table-wrap">
@@ -65,29 +70,25 @@ export default function YoutubePlaylistTable({ playlistId }: { playlistId: strin
         <colgroup>
           <col className="youtube-col-title" />
           <col className="youtube-col-date" />
-          <col className="youtube-col-channel" />
+          <col className="youtube-col-date" />
         </colgroup>
         <thead>
           <tr>
-            <th>Name</th>
-            <th className="youtube-col-date">Upload date</th>
-            <th>Channel</th>
+            <th>Film</th>
+            <th className="youtube-col-date">Rating</th>
+            <th className="youtube-col-date">Date logged</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
-            <tr key={row.videoId} className="youtube-row-main">
+          {rows.map((row, i) => (
+            <tr key={`${row.title}-${row.year}-${i}`} className="youtube-row-main">
               <td className="youtube-cell-title">
-                <a href={row.url} target="_blank" rel="noreferrer" className="youtube-title-link" title={row.title}>
-                  {row.title}
+                <a href={row.url} target="_blank" rel="noreferrer" className="youtube-title-link" title={`${row.title} (${row.year})`}>
+                  {row.title} <span className="letterboxd-year">({row.year})</span>
                 </a>
               </td>
-              <td className="youtube-cell-date">{row.uploadedAt}</td>
-              <td className="youtube-cell-channel">
-                <a href={row.channelUrl} target="_blank" rel="noreferrer" className="youtube-channel-link">
-                  {row.channelTitle}
-                </a>
-              </td>
+              <td className="youtube-cell-date">{stars(row.rating)}</td>
+              <td className="youtube-cell-date">{row.watchedDate}</td>
             </tr>
           ))}
         </tbody>

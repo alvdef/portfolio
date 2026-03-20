@@ -1,12 +1,14 @@
 node_modules/
 dist/
-.astro/
-.next/
-.contentlayer/
-.env
-!src/lib/
-!src/lib/**
-.vercel
-.worktrees/
 tsconfig.tsbuildinfo
-.agents
+
+# Dotfiles (caches, env, editor config)
+.*
+!.gitignore
+!.gitattributes
+!.claude/
+!.codex/
+!.env.example
+
+# Draft content (underscore-prefixed)
+_*.md

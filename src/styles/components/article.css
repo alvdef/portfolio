@@ -83,15 +83,16 @@
 }
 
 .article-body p {
-  font-size: 0.95rem;
-  line-height: 1.55;
+  font-size: 1.05rem;
+  line-height: 1.6;
   margin: 0 0 1rem;
+  text-align: justify;
 }
 
 .article-body ul,
 .article-body ol {
-  font-size: 0.95rem;
-  line-height: 1.55;
+  font-size: 1.05rem;
+  line-height: 1.6;
   margin: 0 0 1rem;
   padding-left: 1.5rem;
 }
@@ -100,8 +101,8 @@
 .article-body ol { list-style-type: decimal; }
 
 .article-body li {
-  font-size: 0.95rem;
-  line-height: 1.55;
+  font-size: 1.05rem;
+  line-height: 1.6;
   margin-bottom: 0.25rem;
 }
 
@@ -112,8 +113,8 @@
 }
 
 .article-body blockquote {
-  font-size: 0.95rem;
-  line-height: 1.55;
+  font-size: 1.05rem;
+  line-height: 1.6;
   margin: 1.2rem 0;
   padding: 0.1rem 0 0.1rem 1rem;
   border-left: 2px solid var(--line);
@@ -172,7 +173,17 @@
   color: var(--muted);
 }
 
-.article-body img,
+.article-body img {
+  display: block;
+  max-width: 32rem;
+  width: 100%;
+  height: auto;
+  margin: 1rem auto;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
 .article-body iframe {
   display: block;
   width: 100%;
@@ -182,10 +193,21 @@
   box-shadow: none;
 }
 
+.article-body figure {
+  margin: 1rem auto;
+  max-width: 32rem;
+  width: 100%;
+}
+
+.article-body figure img {
+  margin: 0;
+}
+
 .article-body figcaption {
   margin-top: 0.35rem;
   color: var(--muted);
   font-size: 0.8rem;
+  text-align: center;
 }
 
 .youtube-directory {
@@ -298,6 +320,16 @@
 
 .youtube-row-notes:last-child .youtube-notes-cell {
   border-bottom: 1px solid var(--line);
+}
+
+/* ── Letterboxd table (reuses youtube-* classes, extras below) ── */
+
+.letterboxd-directory {
+  margin-top: 1.2rem;
+}
+
+.letterboxd-year {
+  color: var(--muted);
 }
 
 .article-divider {

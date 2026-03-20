@@ -1,4 +1,3 @@
-import { getPortfolioNavState } from '@/features/navigation/navigation-state';
 import { getAdjacentArticle, getSectionCarouselElements } from '@/features/navigation/dom-data';
 
 export type NavDir = 'left' | 'right' | 'up' | 'down' | 'none';
@@ -6,6 +5,7 @@ export type NavAxis = 'section' | 'article' | 'none';
 export type NavInput = 'keyboard' | 'pointer' | 'gesture' | 'system';
 
 let initialized = false;
+let isNavigating = false;
 
 export function navigateTo(url: string) {
   if (window.__portfolioNavigate) {
@@ -58,25 +58,23 @@ function handleKeyNavigation(event: KeyboardEvent) {
   if (event.metaKey || event.ctrlKey || event.altKey) return;
   if (isTypingTarget(event.target)) return;
 
-  const state = getPortfolioNavState();
-
   if (event.key === 'h') {
-    if (state.isNavigating) return;
+    if (isNavigating) return;
     const left = document.querySelector('a[data-nav-nearest="prev"]');
     if (left instanceof HTMLAnchorElement) {
       event.preventDefault();
-      state.isNavigating = true;
+      isNavigating = true;
       setNavState('left', 'section', 'keyboard');
       navigateTo(left.href);
     }
   }
 
   if (event.key === 'l') {
-    if (state.isNavigating) return;
+    if (isNavigating) return;
     const right = document.querySelector('a[data-nav-nearest="next"]');
     if (right instanceof HTMLAnchorElement) {
       event.preventDefault();
-      state.isNavigating = true;
+      isNavigating = true;
       setNavState('right', 'section', 'keyboard');
       navigateTo(right.href);
     }
@@ -100,7 +98,7 @@ function handleKeyNavigation(event: KeyboardEvent) {
 }
 
 export function resetNavigationAfterSwap() {
-  getPortfolioNavState().isNavigating = false;
+  isNavigating = false;
 }
 
 export function syncSectionCarousel() {

@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "ae07c0583d799ae1",
+        "id": "6b281c9dcee84bf9",
         "type": "tabs",
         "children": [
           {
-            "id": "7e8011a8f082d73a",
+            "id": "465f6ddee9f7887d",
             "type": "leaf",
             "state": {
               "type": "empty",
@@ -176,14 +176,50 @@
       "bases:Create new base": false
     }
   },
-  "active": "7e8011a8f082d73a",
+  "active": "465f6ddee9f7887d",
   "lastOpenFiles": [
-    "about_me/intro.md",
-    "about_me/home.md",
-    "readme exponential template.md",
-    "_notes/readme exponential.md",
-    "_notes/readme exponential template.md",
-    "_notes",
-    "readme exponential.md"
+    "lab/postgres-timeseries.md",
+    "lab/_research-assistant-raw.md",
+    "lab/_lambda-luajit.md",
+    "lab/spot-predictor.md",
+    "about/me.md",
+    "lab/_spot-predictor-draft.md",
+    "lab/lambda-luajit.md",
+    "lab/certidigital.md",
+    "lab/spot-dashboard.md",
+    "lab/spot-capture.md",
+    "lab/_src/Correo/Beca.mbox",
+    "lab/_src/_chat.txt",
+    "lab/_src/Correo",
+    "lab/_src",
+    "lab/research-assistant-raw.md",
+    "lab/motivation.md",
+    "lab",
+    "unizar/research-assistant-raw.md",
+    "unizar/src/Correo/Beca.mbox",
+    "unizar/src/Correo",
+    "unizar/src/Takeout",
+    "unizar/src/takeout-20260316T162254Z-3-001.zip",
+    "unizar/src/_chat.txt",
+    "coding/_spot predictor.md",
+    "unizar/motivation.md",
+    "unizar/studio-log.md",
+    "assets/20200622_132338.jpeg",
+    "9A7B2AE8-0C6B-412A-BB4B-CA10C10A7B99_1_105_c.jpeg",
+    "9A7B2AE8-0C6B-412A-BB4B-CA10C10A7B99_1_201_a.jpeg",
+    "assets/20230227_151037.jpg",
+    "assets/logo.svg",
+    "assets/alpha.svg",
+    "about/youtube.md",
+    "about/_youtube.md",
+    "about/_recommendations.md",
+    "coding/_intro.md",
+    "about_me/_youtube.md",
+    "about/_my_history.md",
+    "about_me/_my_history.md",
+    "about_me/my_history.md",
+    "about_me/youtube.md",
+    "about_me/_recommendations.md",
+    "coding/alpha.svg"
   ]
 }

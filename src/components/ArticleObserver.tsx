@@ -10,7 +10,7 @@ type Props = {
 
 export default function ArticleObserver({ initialSlug, section, totalArticles }: Props) {
   const hasScrolledRef = useRef(false);
-  const ratioMap = useRef(new Map<Element, number>());
+  const activeSlugRef = useRef(initialSlug);
 
   useEffect(() => {
     if (!hasScrolledRef.current) {
@@ -26,72 +26,55 @@ export default function ArticleObserver({ initialSlug, section, totalArticles }:
     const contentPane = document.querySelector('.content-pane');
     if (!contentPane) return;
 
-    const articles = contentPane.querySelectorAll<HTMLElement>('[data-article-slug]');
+    const articles = Array.from(contentPane.querySelectorAll<HTMLElement>('[data-article-slug]'));
     if (articles.length === 0) return;
 
-    // Set initial active state
-    articles.forEach((article) => {
-      article.dataset.articleActive = article.dataset.articleSlug === initialSlug ? 'true' : 'false';
-    });
+    function activate(slug: string, index: string | undefined) {
+      const changed = slug !== activeSlugRef.current;
+      activeSlugRef.current = slug;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        // Track ratios for all observed articles
-        for (const entry of entries) {
-          ratioMap.current.set(entry.target, entry.isIntersecting ? entry.intersectionRatio : 0);
-        }
+      articles.forEach((a) => {
+        a.dataset.articleActive = a.dataset.articleSlug === slug ? 'true' : 'false';
+      });
 
-        // Find article with highest visibility
-        let bestEl: HTMLElement | null = null;
-        let bestRatio = 0;
-        for (const [el, ratio] of ratioMap.current) {
-          if (ratio > bestRatio) {
-            bestRatio = ratio;
-            bestEl = el as HTMLElement;
-          }
-        }
+      if (!changed) return;
 
-        if (!bestEl) return;
-        const slug = bestEl.dataset.articleSlug;
-        const index = bestEl.dataset.articleIndex;
-        if (!slug) return;
-
-        // Update active state on all articles
-        articles.forEach((article) => {
-          article.dataset.articleActive = article === bestEl ? 'true' : 'false';
-        });
-
-        // Update URL without triggering navigation
-        const newUrl = `/${section}/${slug}`;
-        if (window.location.pathname !== newUrl) {
-          window.history.replaceState(null, '', newUrl);
-        }
-
-        // Update sidebar active link
-        const sidebar = document.getElementById('sidebar-index');
-        if (sidebar) {
-          sidebar.querySelectorAll('a').forEach((a) => a.classList.remove('active'));
-          const activeLink = sidebar.querySelector(`a[href="${newUrl}"]`);
-          if (activeLink) activeLink.classList.add('active');
-        }
-
-        // Update status line
-        const breadcrumb = document.querySelector('.status-breadcrumb');
-        if (breadcrumb && index) {
-          breadcrumb.textContent = `${section}/${slug} [${index}/${totalArticles}]`;
-        }
-      },
-      {
-        root: contentPane,
-        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+      const newUrl = `/${section}/${slug}`;
+      if (window.location.pathname !== newUrl) {
+        window.history.replaceState(null, '', newUrl);
       }
-    );
 
-    articles.forEach((article) => observer.observe(article));
-    return () => {
-      observer.disconnect();
-      ratioMap.current.clear();
-    };
+      const sidebar = document.getElementById('sidebar-index');
+      if (sidebar) {
+        sidebar.querySelectorAll('a').forEach((a) => a.classList.remove('active'));
+        sidebar.querySelector(`a[href="${newUrl}"]`)?.classList.add('active');
+      }
+
+      const breadcrumb = document.querySelector('.status-breadcrumb');
+      if (breadcrumb && index) {
+        breadcrumb.textContent = `${section}/${slug} [${index}/${totalArticles}]`;
+      }
+    }
+
+    // Set initial state
+    activate(initialSlug, articles.find((a) => a.dataset.articleSlug === initialSlug)?.dataset.articleIndex);
+
+    // On scroll, activate the last article whose top has scrolled past the trigger line
+    function onScroll() {
+      const trigger = contentPane!.getBoundingClientRect().top + contentPane!.clientHeight * 0.4;
+
+      let active: HTMLElement = articles[0];
+      for (const article of articles) {
+        if (article.getBoundingClientRect().top <= trigger) {
+          active = article;
+        }
+      }
+
+      activate(active.dataset.articleSlug!, active.dataset.articleIndex);
+    }
+
+    contentPane.addEventListener('scroll', onScroll, { passive: true });
+    return () => contentPane.removeEventListener('scroll', onScroll);
   }, [section, totalArticles, initialSlug]);
 
   return null;

@@ -1,74 +1,87 @@
-import { allDocs, type Doc } from 'contentlayer/generated';
+import fs from 'node:fs';
+import path from 'node:path';
+import matter from 'gray-matter';
 
-export type VirtualDocData = {
+export type Doc = {
+  _id: string;
   title: string;
-  slug: string;
   order: number;
   date: string;
-  section: string;
   group: string;
-  status: string;
   tag?: string[];
-  isVirtual: true;
+  component?: string;
+  playlist?: string;
+  username?: string;
+  slug: string;
+  section: string;
+  raw: string;
 };
 
-export type VirtualDocEntry = {
-  _id: string;
-  _raw: { flattenedPath: string };
-  sourceType: 'virtual';
-  body?: { code: string };
-} & VirtualDocData;
+const vaultDir = path.join(process.cwd(), 'vault');
 
-export type DocEntry = (Doc & { sourceType: 'doc' }) | VirtualDocEntry;
-
-function toDocEntry(doc: Doc): DocEntry {
-  return { ...doc, sourceType: 'doc' };
-}
-
-function getVirtualDocs(): VirtualDocEntry[] {
-  return [
-    {
-      _id: 'virtual:about_me:youtube',
-      _raw: { flattenedPath: 'about_me/youtube' },
-      sourceType: 'virtual',
-      title: 'YouTube Recommendations',
-      slug: 'youtube',
-      order: 9998,
-      date: '2026-02-21',
-      section: 'about_me',
-      group: 'PERSONAL',
-      status: 'published',
-      tag: ['YOUTUBE'],
-      isVirtual: true
+function walkMd(dir: string): string[] {
+  const files: string[] = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name.startsWith('.') || entry.name.startsWith('_')) continue;
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...walkMd(full));
+    } else if (entry.name.endsWith('.md')) {
+      files.push(full);
     }
-  ];
+  }
+  return files;
 }
 
-function compareDocs(a: DocEntry, b: DocEntry) {
+function loadAll(): Doc[] {
+  return walkMd(vaultDir).map((file) => {
+    const content = fs.readFileSync(file, 'utf8');
+    const { data, content: raw } = matter(content);
+    const rel = path.relative(vaultDir, file);
+    const section = rel.split(path.sep)[0];
+    const slug = path.basename(file, '.md');
+    return {
+      _id: rel,
+      title: data.title as string,
+      order: data.order as number,
+      date: data.date as string,
+      group: data.group as string,
+      tag: data.tag as string[] | undefined,
+      component: data.component as string | undefined,
+      playlist: data.playlist as string | undefined,
+      username: data.username as string | undefined,
+      slug,
+      section,
+      raw,
+    };
+  });
+}
+
+let cached: Doc[] | null = null;
+
+function allDocs(): Doc[] {
+  if (!cached) cached = loadAll();
+  return cached;
+}
+
+function compareDocs(a: Doc, b: Doc) {
   return a.order - b.order || a.title.localeCompare(b.title);
 }
 
-export async function getPublishedDocs(): Promise<DocEntry[]> {
-  const docs = allDocs
-    .filter((doc) => doc.status !== 'draft')
-    .map((doc) => toDocEntry(doc));
-
-  return [...docs, ...getVirtualDocs()].sort(compareDocs);
+export function getPublishedDocs(): Doc[] {
+  return allDocs().slice().sort(compareDocs);
 }
 
-export async function getSectionsInUse() {
-  const docs = await getPublishedDocs();
-  return [...new Set(docs.map((doc) => doc.section))];
+export function getSectionsInUse() {
+  return [...new Set(getPublishedDocs().map((doc) => doc.section))];
 }
 
-export async function getDocsForSection(section: string) {
-  const docs = await getPublishedDocs();
-  return docs.filter((doc) => doc.section === section);
+export function getDocsForSection(section: string) {
+  return getPublishedDocs().filter((doc) => doc.section === section);
 }
 
-export async function getDocBySectionAndSlug(section: string, slug: string) {
-  const docs = await getPublishedDocs();
-  return docs.find((doc) => doc.section === section && doc.slug === slug);
+export function getDocBySectionAndSlug(section: string, slug: string) {
+  return getPublishedDocs().find((doc) => doc.section === section && doc.slug === slug);
 }
 
 export function groupDocsByGroup<T extends { group: string }>(docs: T[]) {

@@ -37,7 +37,7 @@ export default function BaseLayout({
 
       <div className="status-line">
         <span className="status-breadcrumb">{currentSection}/{currentSlug} [{articleIndex}/{articleTotal}]</span>
-        <span className="status-keys">h ← → l (section) · j ↑ ↓ k (article)</span>
+        <span className="status-keys">h ← → l (section) · j ↓ ↑ k (article)</span>
         <span className="status-credit">Álvaro de Francisco &copy; 2026</span>
       </div>
     </>

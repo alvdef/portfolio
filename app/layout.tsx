@@ -2,8 +2,8 @@ import type { ReactNode } from 'react';
 import '@/styles/global.css';
 
 export const metadata = {
-  title: 'portfolio',
-  description: 'utilitarian portfolio'
+  title: "alvdef",
+  description: "alvdef's personal website"
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

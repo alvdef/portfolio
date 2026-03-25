@@ -14,5 +14,5 @@ export default async function SectionPage({ params }: { params: Promise<{ sectio
   }
 
   const firstDoc = docs[0];
-  redirect(`/${section}/${firstDoc.slug}`);
+  redirect(firstDoc.href);
 }

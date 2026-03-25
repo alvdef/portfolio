@@ -2,7 +2,6 @@
 title: Me
 order: 1
 date: 2026-03-12
-group: PERSONAL
 ---
 Hi, I'm Álvaro and I like to create things from scratch. Thats the reason why I'm a software engineer, and I think thats why I enjoyed LEGOs when I was a kid or design when I was a teenager. The thing I live for is finding projects to be obsessed with and *learning things by exploring*. 
 

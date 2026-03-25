@@ -7,7 +7,7 @@ type Props = {
   currentSection: string;
   sections: string[];
   sectionLinks: Record<string, string>;
-  sectionGroups: Array<{ group: string; items: Array<{ title: string; slug: string; section: string }> }>;
+  sectionGroups: Array<{ group: string; items: Array<{ title: string; slug: string; href: string }> }>;
   currentSlug: string;
   articleIndex: number;
   articleTotal: number;

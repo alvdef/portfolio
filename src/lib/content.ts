@@ -7,15 +7,21 @@ export type Doc = {
   title: string;
   order: number;
   date: string;
-  group: string;
+  group?: string;
+  groupSlug?: string;
   tag?: string[];
   component?: string;
   playlist?: string;
   username?: string;
   slug: string;
   section: string;
+  href: string;
   raw: string;
 };
+
+function slugifyGroup(group: string): string {
+  return group.toLowerCase().replace(/\s+/g, '-');
+}
 
 const vaultDir = path.join(process.cwd(), 'vault');
 
@@ -40,18 +46,25 @@ function loadAll(): Doc[] {
     const rel = path.relative(vaultDir, file);
     const section = rel.split(path.sep)[0];
     const slug = path.basename(file, '.md');
+    const group = data.group as string | undefined;
+    const groupSlug = group ? slugifyGroup(group) : undefined;
+    const href = groupSlug
+      ? `/${section}/${groupSlug}/${slug}`
+      : `/${section}/${slug}`;
     return {
       _id: rel,
       title: data.title as string,
       order: data.order as number,
       date: data.date as string,
-      group: data.group as string,
+      group,
+      groupSlug,
       tag: data.tag as string[] | undefined,
       component: data.component as string | undefined,
       playlist: data.playlist as string | undefined,
       username: data.username as string | undefined,
       slug,
       section,
+      href,
       raw,
     };
   });
@@ -84,12 +97,19 @@ export function getDocBySectionAndSlug(section: string, slug: string) {
   return getPublishedDocs().find((doc) => doc.section === section && doc.slug === slug);
 }
 
-export function groupDocsByGroup<T extends { group: string }>(docs: T[]) {
+export function getDocsForPage(section: string, groupSlug?: string) {
+  return getPublishedDocs().filter(
+    (d) => d.section === section && d.groupSlug === groupSlug
+  );
+}
+
+export function groupDocsByGroup<T extends { group?: string }>(docs: T[]) {
   const grouped = new Map<string, T[]>();
   for (const doc of docs) {
-    const arr = grouped.get(doc.group) ?? [];
+    const key = doc.group ?? '';
+    const arr = grouped.get(key) ?? [];
     arr.push(doc);
-    grouped.set(doc.group, arr);
+    grouped.set(key, arr);
   }
   return [...grouped.entries()].map(([group, items]) => ({ group, items }));
 }

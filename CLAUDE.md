@@ -21,7 +21,8 @@ Markdown-first portfolio on Next.js App Router. Content is authored in an Obsidi
 
 - **Slug** = filename without `.md`. **Section** = parent directory name. Both derived from file path, not frontmatter.
 - Files/dirs starting with `_` are drafts (gitignored, excluded from build). Files/dirs starting with `.` are config (committed, excluded from content loader).
-- Frontmatter requires: `title`, `order`, `date`, `group`. Optional: `tag`, `component`, `playlist`.
+- Frontmatter requires: `title`, `order`, `date`. Optional: `group`, `tag`, `component`, `playlist`.
+- When `group` is present, it is slugified (lowercase, dash-separated) and becomes part of the URL: `/{section}/{group-slug}/{slug}`. Without group: `/{section}/{slug}`.
 - `component: "youtube"` with a `playlist` ID renders `YoutubePlaylistTable` instead of MDX.
 - Docs are cached in-memory on first call to `getPublishedDocs()`.
 

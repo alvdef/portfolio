@@ -60,7 +60,7 @@ function handleKeyNavigation(event: KeyboardEvent) {
 
   if (event.key === 'h') {
     if (isNavigating) return;
-    const left = document.querySelector('a[data-nav-nearest="prev"]');
+    const left = document.querySelector('a[data-nav-nearest="prev"]') ?? document.querySelector('a[data-nav-nearest="next"]');
     if (left instanceof HTMLAnchorElement) {
       event.preventDefault();
       isNavigating = true;
@@ -71,7 +71,7 @@ function handleKeyNavigation(event: KeyboardEvent) {
 
   if (event.key === 'l') {
     if (isNavigating) return;
-    const right = document.querySelector('a[data-nav-nearest="next"]');
+    const right = document.querySelector('a[data-nav-nearest="next"]') ?? document.querySelector('a[data-nav-nearest="prev"]');
     if (right instanceof HTMLAnchorElement) {
       event.preventDefault();
       isNavigating = true;

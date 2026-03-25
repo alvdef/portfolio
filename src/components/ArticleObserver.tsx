@@ -4,11 +4,12 @@ import { useEffect, useRef } from 'react';
 
 type Props = {
   initialSlug: string;
+  pathPrefix: string;
   section: string;
   totalArticles: number;
 };
 
-export default function ArticleObserver({ initialSlug, section, totalArticles }: Props) {
+export default function ArticleObserver({ initialSlug, pathPrefix, section, totalArticles }: Props) {
   const hasScrolledRef = useRef(false);
   const activeSlugRef = useRef(initialSlug);
 
@@ -39,7 +40,7 @@ export default function ArticleObserver({ initialSlug, section, totalArticles }:
 
       if (!changed) return;
 
-      const newUrl = `/${section}/${slug}`;
+      const newUrl = `${pathPrefix}/${slug}`;
       if (window.location.pathname !== newUrl) {
         window.history.replaceState(null, '', newUrl);
       }
@@ -75,7 +76,7 @@ export default function ArticleObserver({ initialSlug, section, totalArticles }:
 
     contentPane.addEventListener('scroll', onScroll, { passive: true });
     return () => contentPane.removeEventListener('scroll', onScroll);
-  }, [section, totalArticles, initialSlug]);
+  }, [pathPrefix, section, totalArticles, initialSlug]);
 
   return null;
 }

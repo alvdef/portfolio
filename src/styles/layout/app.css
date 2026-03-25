@@ -2,7 +2,7 @@
 
 .app-grid {
   display: grid;
-  grid-template-columns: var(--sidebar-width, 15rem) 1fr;
+  grid-template-columns: var(--sidebar-width, 16.5rem) 1fr;
   grid-template-rows: auto 1fr;
   min-height: 100vh;
   transition: grid-template-columns var(--ui-duration-fast) var(--ui-ease);

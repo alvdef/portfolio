@@ -34,7 +34,16 @@
   }
 
   .top-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--bg);
     grid-template-columns: auto 1fr auto;
+  }
+
+  .youtube-col-date,
+  .youtube-cell-date {
+    display: none;
   }
 
   .content-pane {

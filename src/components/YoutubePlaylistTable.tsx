@@ -64,14 +64,14 @@ export default function YoutubePlaylistTable({ playlistId }: { playlistId: strin
       <table className="youtube-table">
         <colgroup>
           <col className="youtube-col-title" />
-          <col className="youtube-col-date" />
           <col className="youtube-col-channel" />
+          <col className="youtube-col-date" />
         </colgroup>
         <thead>
           <tr>
             <th>Name</th>
-            <th className="youtube-col-date">Upload date</th>
             <th>Channel</th>
+            <th className="youtube-col-date">Upload date</th>
           </tr>
         </thead>
         <tbody>
@@ -82,12 +82,12 @@ export default function YoutubePlaylistTable({ playlistId }: { playlistId: strin
                   {row.title}
                 </a>
               </td>
-              <td className="youtube-cell-date">{row.uploadedAt}</td>
               <td className="youtube-cell-channel">
                 <a href={row.channelUrl} target="_blank" rel="noreferrer" className="youtube-channel-link">
                   {row.channelTitle}
                 </a>
               </td>
+              <td className="youtube-cell-date">{row.uploadedAt}</td>
             </tr>
           ))}
         </tbody>

@@ -19,7 +19,7 @@
   min-height: calc(100vh - 3rem);
   opacity: 0.3;
   scale: 0.98;
-  transition: opacity 0.4s ease, scale 0.4s ease;
+  transition: opacity var(--reveal-duration) var(--motion-spring), scale var(--reveal-duration) var(--motion-spring);
 }
 
 .article-body[data-article-active='true'] {
@@ -350,3 +350,34 @@
   font-size: 0.75rem;
   font-family: 'IBM Plex Mono', monospace;
 }
+
+/* ── Home ── */
+
+.home-body h2 {
+  margin: 2.6rem 0 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.home-body > p:first-of-type {
+  font-size: 1.15rem;
+}
+
+.home-body ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.home-body li {
+  padding-left: 1.2em;
+  text-indent: -1.2em;
+}
+
+.home-body li::before {
+  content: '— ';
+  color: var(--muted);
+}
+

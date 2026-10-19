@@ -1,92 +1,107 @@
 /* ── View transitions ── */
 
+/*
+  Sections sit side by side on one horizontal strip. Moving to the section on the right
+  slides the strip left: the current page leaves towards the left and the next one arrives
+  from the right, both on the same spring so they read as a single sheet with mass.
+*/
+
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-fill-mode: both;
   backface-visibility: hidden;
-  transform-origin: center center;
 }
 
-/* Prevent status line from animating during transitions */
+/* The header and status line are fixed furniture: they stay put and only crossfade. */
 ::view-transition-old(status-line),
 ::view-transition-new(status-line) {
   animation: none;
 }
 
+::view-transition-old(top-header),
+::view-transition-new(top-header) {
+  animation-duration: 180ms;
+  animation-timing-function: ease-out;
+}
+
 :root[data-nav-axis='section']::view-transition-old(root),
 :root[data-nav-axis='section']::view-transition-new(root) {
   animation-duration: var(--section-duration);
-  animation-timing-function: var(--section-ease);
+  animation-timing-function: var(--motion-spring);
 }
 
-/* Keyboard shortcuts use a cleaner, lighter motion profile. */
-:root[data-nav-input='keyboard'][data-nav-axis='section']::view-transition-old(root),
-:root[data-nav-input='keyboard'][data-nav-axis='section']::view-transition-new(root) {
-  animation-duration: var(--key-nav-duration);
-  animation-timing-function: var(--key-nav-ease);
-}
-
-:root[data-nav-axis='section'][data-nav-dir='left']::view-transition-old(root) { animation-name: section-root-out-left; }
-:root[data-nav-axis='section'][data-nav-dir='left']::view-transition-new(root) { animation-name: section-root-in-right; }
-:root[data-nav-axis='section'][data-nav-dir='right']::view-transition-old(root) { animation-name: section-root-out-right; }
-:root[data-nav-axis='section'][data-nav-dir='right']::view-transition-new(root) { animation-name: section-root-in-left; }
-
-:root[data-nav-input='keyboard'][data-nav-axis='section'][data-nav-dir='left']::view-transition-old(root) { animation-name: key-section-root-out-left; }
-:root[data-nav-input='keyboard'][data-nav-axis='section'][data-nav-dir='left']::view-transition-new(root) { animation-name: key-section-root-in-right; }
-:root[data-nav-input='keyboard'][data-nav-axis='section'][data-nav-dir='right']::view-transition-old(root) { animation-name: key-section-root-out-right; }
-:root[data-nav-input='keyboard'][data-nav-axis='section'][data-nav-dir='right']::view-transition-new(root) { animation-name: key-section-root-in-left; }
+:root[data-nav-axis='section'][data-nav-dir='right']::view-transition-old(root) { animation-name: strip-out-to-left; }
+:root[data-nav-axis='section'][data-nav-dir='right']::view-transition-new(root) { animation-name: strip-in-from-right; }
+:root[data-nav-axis='section'][data-nav-dir='left']::view-transition-old(root) { animation-name: strip-out-to-right; }
+:root[data-nav-axis='section'][data-nav-dir='left']::view-transition-new(root) { animation-name: strip-in-from-left; }
 
 :root[data-nav-axis='none']::view-transition-old(root),
 :root[data-nav-axis='none']::view-transition-new(root) {
   animation: none;
 }
 
-@keyframes section-root-out-left {
-  from { transform: translateX(0) scale(1); opacity: 1; }
-  to { transform: translateX(calc(var(--section-shift) * -1)) scale(0.992); opacity: 0.72; }
+/* The leaving page fades early, so the two sheets never fight for attention mid-slide. */
+@keyframes strip-out-to-left {
+  0% { transform: translateX(0); opacity: 1; }
+  45% { opacity: 0; }
+  100% { transform: translateX(calc(var(--section-shift) * -1)); opacity: 0; }
 }
 
-@keyframes section-root-in-right {
-  from { transform: translateX(var(--section-shift)) scale(1.005); opacity: 0.74; }
-  to { transform: translateX(0) scale(1); opacity: 1; }
+@keyframes strip-in-from-right {
+  0% { transform: translateX(var(--section-shift)); opacity: 0; }
+  35% { opacity: 1; }
+  100% { transform: translateX(0); opacity: 1; }
 }
 
-@keyframes section-root-out-right {
-  from { transform: translateX(0) scale(1); opacity: 1; }
-  to { transform: translateX(var(--section-shift)) scale(0.992); opacity: 0.72; }
+@keyframes strip-out-to-right {
+  0% { transform: translateX(0); opacity: 1; }
+  45% { opacity: 0; }
+  100% { transform: translateX(var(--section-shift)); opacity: 0; }
 }
 
-@keyframes section-root-in-left {
-  from { transform: translateX(calc(var(--section-shift) * -1)) scale(1.005); opacity: 0.74; }
-  to { transform: translateX(0) scale(1); opacity: 1; }
+@keyframes strip-in-from-left {
+  0% { transform: translateX(calc(var(--section-shift) * -1)); opacity: 0; }
+  35% { opacity: 1; }
+  100% { transform: translateX(0); opacity: 1; }
 }
 
-@keyframes key-section-root-out-left {
-  from { transform: translateX(0) scale(1); opacity: 1; }
-  to { transform: translateX(calc(var(--key-section-shift) * -1)) scale(0.985); opacity: 0.78; }
+/* ── Text reveal ── */
+
+/*
+  Every page lays its lines down top to bottom, each one settling on the same spring as the
+  section slide. The cascade is capped so long articles are never kept waiting.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  .article-body > * {
+    animation: line-settle var(--reveal-duration) var(--motion-spring) both;
+  }
+
+  .article-body > :nth-child(1) { animation-delay: calc(var(--reveal-step) * 0); }
+  .article-body > :nth-child(2) { animation-delay: calc(var(--reveal-step) * 1); }
+  .article-body > :nth-child(3) { animation-delay: calc(var(--reveal-step) * 2); }
+  .article-body > :nth-child(4) { animation-delay: calc(var(--reveal-step) * 3); }
+  .article-body > :nth-child(5) { animation-delay: calc(var(--reveal-step) * 4); }
+  .article-body > :nth-child(6) { animation-delay: calc(var(--reveal-step) * 5); }
+  .article-body > :nth-child(7) { animation-delay: calc(var(--reveal-step) * 6); }
+  .article-body > :nth-child(8) { animation-delay: calc(var(--reveal-step) * 7); }
+  .article-body > :nth-child(9) { animation-delay: calc(var(--reveal-step) * 8); }
+  .article-body > :nth-child(n + 10) { animation-delay: calc(var(--reveal-step) * 9); }
 }
 
-@keyframes key-section-root-in-right {
-  from { transform: translateX(var(--key-section-shift)) scale(1.012); opacity: 0.78; }
-  to { transform: translateX(0) scale(1); opacity: 1; }
+/* A page that arrives by section slide is already moving as one sheet; it shows whole. */
+:root[data-arrival='slide'] .article-body > * {
+  animation: none;
 }
 
-@keyframes key-section-root-out-right {
-  from { transform: translateX(0) scale(1); opacity: 1; }
-  to { transform: translateX(var(--key-section-shift)) scale(0.985); opacity: 0.78; }
-}
-
-@keyframes key-section-root-in-left {
-  from { transform: translateX(calc(var(--key-section-shift) * -1)) scale(1.012); opacity: 0.78; }
-  to { transform: translateX(0) scale(1); opacity: 1; }
+@keyframes line-settle {
+  from { opacity: 0; transform: translateY(var(--reveal-drop)); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   :root {
     --section-shift: 0px;
-    --key-section-shift: 0px;
     --section-duration: 1ms;
-    --key-nav-duration: 1ms;
   }
 
   :root.theme-animating *,

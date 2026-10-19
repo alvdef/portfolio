@@ -23,6 +23,8 @@ function slugifyGroup(group: string): string {
   return group.toLowerCase().replace(/\s+/g, '-');
 }
 
+export const HOME_SECTION = 'home';
+
 const vaultDir = path.join(process.cwd(), 'vault');
 
 function walkMd(dir: string): string[] {
@@ -48,9 +50,12 @@ function loadAll(): Doc[] {
     const slug = path.basename(file, '.md');
     const group = data.group as string | undefined;
     const groupSlug = group ? slugifyGroup(group) : undefined;
-    const href = groupSlug
-      ? `/${section}/${groupSlug}/${slug}`
-      : `/${section}/${slug}`;
+    // The home section is the site root, not a routed article.
+    const href = section === HOME_SECTION
+      ? '/'
+      : groupSlug
+        ? `/${section}/${groupSlug}/${slug}`
+        : `/${section}/${slug}`;
     return {
       _id: rel,
       title: data.title as string,

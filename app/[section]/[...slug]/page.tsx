@@ -3,7 +3,7 @@ import BaseLayout from '@/components/layout/BaseLayout';
 import MdxContent from '@/components/content/MdxContent';
 import YoutubePlaylistTable from '@/components/YoutubePlaylistTable';
 import LetterboxdTable from '@/components/LetterboxdTable';
-import { getPublishedDocs, getDocsForPage, groupDocsByGroup } from '@/lib/content';
+import { getPublishedDocs, getDocsForPage, groupDocsByGroup, HOME_SECTION } from '@/lib/content';
 import { getSectionLandingLinks } from '@/features/navigation/section-links';
 import ArticleObserver from '@/components/ArticleObserver';
 
@@ -12,7 +12,7 @@ function toIsoDate(input: string) {
 }
 
 export function generateStaticParams() {
-  return getPublishedDocs().map((doc) => ({
+  return getPublishedDocs().filter((doc) => doc.section !== HOME_SECTION).map((doc) => ({
     section: doc.section,
     slug: doc.groupSlug ? [doc.groupSlug, doc.slug] : [doc.slug],
   }));
@@ -34,7 +34,7 @@ export default async function ArticlePage({ params }: { params: { section: strin
 
   const docs = getPublishedDocs();
   const doc = docs.find(
-    (item) => item.section === section && item.slug === articleSlug && item.groupSlug === groupSlug
+    (item) => item.section !== HOME_SECTION && item.section === section && item.slug === articleSlug && item.groupSlug === groupSlug
   );
   if (!doc) notFound();
 

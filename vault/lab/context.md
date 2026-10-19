@@ -13,7 +13,7 @@ Prices also fluctuate. They change roughly three times a day on average, driven 
 
 ![[spot-price-volatility.png|Price of c5n.xlarge in eu-north-1a from Jan 2024 to Mar 2025]]
 
-This project aed to build a prediction system for Spot prices, accurate enough to inform scheduling decisions, and serve it through an API that orchestrators like Apache Airflow can query.
+This project aimed to build a prediction system for Spot prices, accurate enough to inform scheduling decisions, and serve it through an API that orchestrators like Apache Airflow can query.
 
 ## Constraints
 

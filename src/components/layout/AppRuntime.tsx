@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { initNavigationController, resetNavigationAfterSwap, syncSectionCarousel } from '@/features/navigation/nav-controller';
+import { consumeSlideArrival, initNavigationController, notifyRouteCommitted, resetNavigationAfterSwap, syncSectionCarousel } from '@/features/navigation/nav-controller';
 import { initSidebarController, syncSidebarForViewport } from '@/features/sidebar/sidebar-controller';
 import { initThemeController, syncThemeAfterSwap } from '@/features/theme/theme-controller';
 
@@ -24,7 +24,15 @@ export default function AppRuntime() {
     };
   }, [router]);
 
+  // Runs before paint, so a page that arrives without a slide starts its line reveal from the first frame.
+  useLayoutEffect(() => {
+    if (!consumeSlideArrival()) {
+      document.documentElement.dataset.arrival = 'reveal';
+    }
+  }, [pathname]);
+
   useEffect(() => {
+    notifyRouteCommitted();
     resetNavigationAfterSwap();
     syncThemeAfterSwap();
     syncSidebarForViewport();

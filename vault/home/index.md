@@ -7,7 +7,7 @@ I build data systems end to end, from raw sources to the decisions on top.
 
 ## Now
 
-- Member of Technical Staff at **Mafer**, building AI for R&D teams in the chemical, cosmetics and food industries.
+- Member of Technical Staff at **mafer**, building AI for R&D teams in the chemical, cosmetics and food industries.
 - Co-founder & CTO of [Pleka](https://pleka.ai), a data and decision platform for SMEs.
 - M.Sc. in Data Science at TU Wien.
 

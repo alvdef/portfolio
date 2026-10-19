@@ -29,4 +29,4 @@ Over Christmas break I started using agentic tools like Claude Code, and it gave
 
 ---
 
-*Written in March 2026. Since then I've built Licit, co-founded [Pleka](https://pleka.ai) and joined Mafer, and I haven't found the time to write any of it down. Turns out building leaves little time for writing about building.*
+*Written in March 2026. Since then I've built Licit, co-founded [Pleka](https://pleka.ai) and joined mafer, and I haven't found the time to write any of it down. Turns out building leaves little time for writing about building.*
